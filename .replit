@@ -1,2 +1,2 @@
 language = "cpp"
-run = "./runtests.sh"
+run = "chmod +x runtests.sh && ./runtests.sh"
