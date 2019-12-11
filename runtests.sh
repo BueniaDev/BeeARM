@@ -1,4 +1,4 @@
 #!/bin/bash
 cd BeeARM-tests/
-make
+make buildclang
 ./test
