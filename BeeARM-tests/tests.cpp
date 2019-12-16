@@ -40,11 +40,34 @@ TestInterface::~TestInterface()
 TestInterface inter;
 BeeARM arm;
 
-TEST_CASE("Test to ensure everything's working", "[test]")
+void thumbinit()
 {
   arm.setinterface(&inter);
-  arm.init(0, 0);
-  arm.executenextinstr();
-  arm.executenextinstr();
-  arm.executenextinstr();
+  arm.init(0, 0x30);
+}
+
+TEST_CASE("THUMB.1-Move shifted register", "[thumb1]")
+{
+  thumbinit();
+  arm.setreg(1, 5);
+
+  for (int i = 0; i < 32; i++)
+  {
+
+    uint16_t instr = 0x0008;
+    instr |= (i << 6);
+    cout << hex << (int)(instr) << endl;
+    inter.memory[0] = (instr & 0xFF);
+    inter.memory[1] = (instr >> 8);
+
+    for (int j = 0; j < 3; j++)
+    {
+      arm.executenextinstr();
+    }
+
+    REQUIRE(arm.getreg(0) == ((5 << i)));
+
+    inter.memory[0] = 0;
+    inter.memory[1] = 0;
+  }
 }

@@ -59,6 +59,10 @@ namespace beearm
       };
 
       void executenextinstr();
+      void executearminstr(uint32_t instr);
+      #ifdef BEEARM_ENABLE_THUMB
+      void executethumbinstr(uint16_t instr);
+      #endif // BEEARM_ENABLE_THUMB
 
       struct armregisters
       {

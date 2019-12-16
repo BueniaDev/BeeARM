@@ -49,6 +49,7 @@ namespace beearm
       else
       {
         cout << "Exectuing ARM instruction..." << endl;
+        executearminstr(currentarminstr.armvalue);
       }
     }
     else
@@ -67,8 +68,33 @@ namespace beearm
       else
       {
         cout << "Exectuing THUMB instruction..." << endl;
+        executethumbinstr(currentthumbinstr.thumbvalue);
       }
       #endif // BEEARM_ENABLED_THUMB
     }
+  }
+
+  void BeeARM::executearminstr(uint32_t instr)
+  {
+    for (int i = 0; i < (int)(armmasktable.size()); i++)
+    {
+      if ((instr & armmasktable[i]) == armresulttable[i])
+      {
+        armfunctable[armresulttable[i]](this);
+      }
+    }
+  }
+
+  void BeeARM::executethumbinstr(uint16_t instr)
+  {
+    #ifdef BEEARM_ENABLE_THUMB
+    for (int i = 0; i < (int)(armmasktable.size()); i++)
+    {
+      if ((instr & armmasktable[i]) == armresulttable[i])
+      {
+        armfunctable[armresulttable[i]](this);
+      }
+    }
+    #endif // BEEARM_ENABLE_THUMB
   }
 };
