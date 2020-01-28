@@ -1,7 +1,8 @@
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
 #include "../BeeARM/beearm.h"
+#include <string>
+#include <fstream>
 using namespace beearm;
+using namespace std;
 
 class TestInterface : public BeeARMInterface
 {
@@ -9,10 +10,30 @@ class TestInterface : public BeeARMInterface
     TestInterface();
     ~TestInterface();
 
-    array<uint8_t, 0x1000000> memory;
+    array<uint8_t, 0x10000000> memory;
+
+    void loadfile(string filename)
+    {
+	ifstream file(filename.c_str(), ios::in | ios::binary | ios::ate);
+
+	if (file.is_open())
+	{
+	    streampos size = file.tellg();
+	    file.seekg(0, ios::beg);
+	    file.read((char*)&memory[0x8000000], size);
+	    cout << "Success" << endl;
+	    file.close();
+	}
+	else
+	{
+	    cout << "Error" << endl;
+	    exit(1);
+	}
+    }
 
     uint8_t readByte(uint32_t addr)
     {
+      addr = (addr % 0x10000000);
       return memory[addr];
     }
 
@@ -67,65 +88,25 @@ TestInterface::~TestInterface()
 TestInterface inter;
 BeeARM arm;
 
-void init()
+void init(string filename)
 {
+    inter.loadfile(filename);
     arm.setinterface(&inter);
+    arm.init(0x8000000, 0x5F);
+    arm.armreg.r13 = 0x3007F00;
+    arm.armreg.r13irq = 0x3007FA0;
 }
 
-void thumbinit()
+int main()
 {
-  arm.init(0, 0x30);
-}
+    init("first.gba");
 
-void thumbtest(uint16_t instr, uint32_t val)
-{
-    inter.writeWord(0, instr);
-
-    for (int j = 0; j < 3; j++)
+    for (int i = 0; i < 100000000; i++)
     {
 	arm.executenextinstr();
+	// arm.printregs();
     }
 
-    REQUIRE(arm.getreg(0) == val);
-
-    inter.writeWord(0, 0);
-    thumbinit();
-}
-
-TEST_CASE("THUMB.1-Move shifted register", "[thumb1]")
-{
-  init();
-
-  SECTION("Logical Shift Left")
-  {
-    thumbinit();
-    arm.setreg(1, 5);
-
-    for (int i = 0; i < 32; i++)
-    {
-	uint16_t instr = 0x0008;
-	instr |= (i << 6);
-	thumbtest(instr, (5 << i));
-	arm.setreg(1, 5);
-    }
-  }
-
-  SECTION("Logical Shift Right")
-  {
-    thumbinit();
-    arm.setreg(1, 0x80000000);
-
-    uint16_t instr = 0x0808;
-
-    thumbtest(instr, 0);
-
-    for (int i = 1; i < 32; i++)
-    {
-	uint16_t instr = 0x0808;
-	instr |= (i << 6);
-	thumbtest(instr, (0x80000000 >> i));
-	arm.setreg(1, 5);
-	arm.setreg(1, 0x80000000);
-    }
-  }
+    cout << "Program execution finished." << endl;
+    return 0;
 }

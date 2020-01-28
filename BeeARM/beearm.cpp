@@ -42,13 +42,15 @@ namespace beearm
       nextarminstr[1].armvalue = readLong(armreg.r15);
       armreg.r15 += 4;
 
+      int cond = (currentarminstr.armvalue >> 28);
+
       if (currentarminstr.ispipelinefill)
       {
-        cout << "Filling pipeline..." << endl;
+        // cout << "Filling pipeline..." << endl;
       }
-      else
+      else if (getcond(cond))
       {
-        cout << "Exectuing ARM instruction..." << endl;
+        // cout << "Exectuing ARM instruction..." << endl;
         executearminstr(currentarminstr.armvalue);
       }
     }
@@ -63,11 +65,11 @@ namespace beearm
 
       if (currentthumbinstr.ispipelinefill)
       {
-        cout << "Filling pipeline..." << endl;
+        // cout << "Filling pipeline..." << endl;
       }
       else
       {
-        cout << "Exectuing THUMB instruction..." << endl;
+        // cout << "Exectuing THUMB instruction..." << endl;
         executethumbinstr(currentthumbinstr.thumbvalue);
       }
       #endif // BEEARM_ENABLED_THUMB
@@ -81,6 +83,7 @@ namespace beearm
       if ((instr & armmasktable[i]) == armresulttable[i])
       {
         armfunctable[armresulttable[i]](this);
+	return;
       }
     }
   }
@@ -88,11 +91,12 @@ namespace beearm
   void BeeARM::executethumbinstr(uint16_t instr)
   {
     #ifdef BEEARM_ENABLE_THUMB
-    for (int i = 0; i < (int)(armmasktable.size()); i++)
+    for (int i = 0; i < (int)(thumbmasktable.size()); i++)
     {
-      if ((instr & armmasktable[i]) == armresulttable[i])
+      if ((instr & thumbmasktable[i]) == thumbresulttable[i])
       {
-        armfunctable[armresulttable[i]](this);
+        thumbfunctable[thumbresulttable[i]](this);
+	return;
       }
     }
     #endif // BEEARM_ENABLE_THUMB
