@@ -403,6 +403,8 @@ namespace beearm
       array<pipelinestage, 2> nextthumbinstr;
       #endif // BEEARM_ENABLE_THUMB
 
+      int clockcycles = 0;
+
       void flushpipeline()
       {
 	currentarminstr.ispipelinefill = true;
@@ -579,6 +581,8 @@ namespace beearm
 	{
 	    int cycles = inter->clockcycle(val, flags);
 
+	    clockcycles += cycles;
+
 	    for (; cycles != 0; cycles--)
 	    {
 		inter->update();
@@ -590,6 +594,7 @@ namespace beearm
       {
 	if (inter != NULL)
 	{
+	    clockcycles += 1;
 	    inter->update();
 	}	
       }
