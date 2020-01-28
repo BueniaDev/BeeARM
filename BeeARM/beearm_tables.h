@@ -72,7 +72,7 @@ namespace beearm
 
   #ifdef BEEARM_ENABLE_THUMB
 
-  array<uint16_t, 19> thumbresulttable = 
+  inline array<uint16_t, 19> thumbresulttable = 
   {
     0x1800, 0x0000, 0x2000, 0x4000,
     0x4400, 0x4800, 0x5000, 0x5200,
@@ -81,7 +81,7 @@ namespace beearm
     0xD000, 0xE000, 0xF000,
   };
 
-  array<uint16_t, 19> thumbmasktable = 
+  inline array<uint16_t, 19> thumbmasktable = 
   {
     0xF800, 0xE000, 0xE000, 0xFC00,
     0xFC00, 0xF800, 0xF200, 0xF200,
@@ -90,7 +90,7 @@ namespace beearm
     0xF000, 0xF800, 0xF000,
   };
 
-  unordered_map<uint16_t, armfunc> thumbfunctable = 
+  inline unordered_map<uint16_t, armfunc> thumbfunctable = 
   {
     { 0x1800, thumb2 },
     { 0x0000, thumb1 },
