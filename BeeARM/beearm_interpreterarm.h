@@ -9,7 +9,7 @@ using namespace std;
 
 namespace beearm
 {
-    void arm3(BeeARM *arm)
+    inline void arm3(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 
@@ -33,7 +33,7 @@ namespace beearm
 	}
     }
 
-    void arm4(BeeARM *arm)
+    inline void arm4(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 
@@ -57,7 +57,7 @@ namespace beearm
 	arm->clock((arm->getreg(15) + 4), CODE_S32);
     }
 
-    void arm5(BeeARM *arm)
+    inline void arm5(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 
@@ -213,7 +213,7 @@ namespace beearm
 	arm->clock((arm->getreg(15) + 4), CODE_S32);
     }
 
-    void arm6(BeeARM *arm)
+    inline void arm6(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	
@@ -288,7 +288,7 @@ namespace beearm
 	arm->clock((arm->getreg(15) + 4), CODE_S32);
     }
 
-    void arm7(BeeARM *arm)
+    inline void arm7(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.7" << endl;
@@ -296,7 +296,7 @@ namespace beearm
 	exit(1);
     }
 
-    void arm8(BeeARM *arm)
+    inline void arm8(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.8" << endl;
@@ -304,7 +304,7 @@ namespace beearm
 	exit(1);
     }
 
-    void arm9(BeeARM *arm)
+    inline void arm9(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	
@@ -443,7 +443,7 @@ namespace beearm
 	}
     }
 
-    void arm10(BeeARM *arm)
+    inline void arm10(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.10" << endl;
@@ -451,7 +451,7 @@ namespace beearm
 	exit(1);
     }
 
-    void arm11(BeeARM *arm)
+    inline void arm11(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.11" << endl;
@@ -459,7 +459,7 @@ namespace beearm
 	exit(1);
     }
 
-    void arm12(BeeARM *arm)
+    inline void arm12(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.12" << endl;
@@ -467,31 +467,31 @@ namespace beearm
 	exit(1);
     }
 
-    void arm13(BeeARM *arm)
+    inline void arm13(BeeARM *arm)
     {
 	cout << "ARM.13-SWI" << endl;
 	exit(1);
     }
 
-    void arm14(BeeARM *arm)
+    inline void arm14(BeeARM *arm)
     {
 	cout << "ARM.14-CDP" << endl;
 	exit(1);
     }
 
-    void arm15(BeeARM *arm)
+    inline void arm15(BeeARM *arm)
     {
 	cout << "ARM.15-LDC/STC" << endl;
 	exit(1);
     }
 
-    void arm16(BeeARM *arm)
+    inline void arm16(BeeARM *arm)
     {
 	cout << "ARM.16-MRC/MCR" << endl;
 	exit(1);
     }
 
-    void arm17(BeeARM *arm)
+    inline void arm17(BeeARM *arm)
     {
 	cout << "ARM.17-Undefined Instruction" << endl;
 	exit(1);

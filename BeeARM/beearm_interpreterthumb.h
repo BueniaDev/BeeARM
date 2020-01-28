@@ -8,7 +8,7 @@ using namespace beearm;
 
 namespace beearm
 {
-    void thumb1(BeeARM *arm)
+    inline void thumb1(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -61,7 +61,7 @@ namespace beearm
 	arm->clock(arm->getreg(15), CODE_S16);
     }
 
-    void thumb2(BeeARM *arm)
+    inline void thumb2(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -108,7 +108,7 @@ namespace beearm
 	arm->clock(arm->getreg(15), CODE_S16);
     }
 
-    void thumb3(BeeARM *arm)
+    inline void thumb3(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 
@@ -150,7 +150,7 @@ namespace beearm
 	arm->clock(arm->getreg(15), CODE_S16);
     }
 
-    void thumb4(BeeARM *arm)
+    inline void thumb4(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -222,7 +222,7 @@ namespace beearm
 	}
     }
 
-    void thumb5(BeeARM *arm)
+    inline void thumb5(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -314,7 +314,7 @@ namespace beearm
 	}
     }
 
-    void thumb6(BeeARM *arm)
+    inline void thumb6(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 
@@ -332,7 +332,7 @@ namespace beearm
 	arm->clock((arm->getreg(15) + 2), CODE_S16);
     }
 
-    void thumb7(BeeARM *arm)
+    inline void thumb7(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	cout << "THUMB.7" << endl;
@@ -340,7 +340,7 @@ namespace beearm
 	exit(1);
     }
 
-    void thumb8(BeeARM *arm)
+    inline void thumb8(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -384,7 +384,7 @@ namespace beearm
 	}
     }
 
-    void thumb9(BeeARM *arm)
+    inline void thumb9(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -434,7 +434,7 @@ namespace beearm
 	}
     }
 
-    void thumb10(BeeARM *arm)
+    inline void thumb10(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -459,7 +459,7 @@ namespace beearm
 	}
     }
 
-    void thumb11(BeeARM *arm)
+    inline void thumb11(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -484,7 +484,7 @@ namespace beearm
 	}
     }
 
-    void thumb12(BeeARM *arm)
+    inline void thumb12(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	cout << "THUMB.12" << endl;
@@ -492,7 +492,7 @@ namespace beearm
 	exit(1);
     }
 
-    void thumb13(BeeARM *arm)
+    inline void thumb13(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	cout << "THUMB.13" << endl;
@@ -500,7 +500,7 @@ namespace beearm
 	exit(1);
     }
 
-    void thumb14(BeeARM *arm)
+    inline void thumb14(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 
@@ -602,7 +602,7 @@ namespace beearm
 	arm->setreg(13, r13);
     }
 
-    void thumb15(BeeARM *arm)
+    inline void thumb15(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -736,7 +736,7 @@ namespace beearm
 	}
     }
 
-    void thumb16(BeeARM *arm)
+    inline void thumb16(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 
@@ -764,7 +764,7 @@ namespace beearm
 	}
     }
 
-    void thumb17(BeeARM *arm)
+    inline void thumb17(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	cout << "THUMB.17" << endl;
@@ -772,7 +772,7 @@ namespace beearm
 	exit(1);
     }
 
-    void thumb18(BeeARM *arm)
+    inline void thumb18(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 	
@@ -791,7 +791,7 @@ namespace beearm
 	arm->flushpipeline();
     }
 
-    void thumb19(BeeARM *arm)
+    inline void thumb19(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
 
