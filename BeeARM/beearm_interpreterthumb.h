@@ -785,7 +785,7 @@ namespace beearm
 	}
 
 	arm->clock(arm->getreg(15), CODE_N16);
-	arm->setreg(15, (arm->getreg(15) + offs));
+	arm->setreg(15, ((arm->getreg(15) - 2) + offs));
 	arm->clock(arm->getreg(15), CODE_S16);
 	arm->clock((arm->getreg(15) + 2), CODE_S16);
 	arm->flushpipeline();
