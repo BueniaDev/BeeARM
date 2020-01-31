@@ -581,11 +581,9 @@ namespace beearm
 	{
 	    int cycles = inter->clockcycle(val, flags);
 
-	    clockcycles += cycles;
-
 	    for (; cycles != 0; cycles--)
 	    {
-		inter->update();
+		inter->clock();
 	    }
 	}
       }
