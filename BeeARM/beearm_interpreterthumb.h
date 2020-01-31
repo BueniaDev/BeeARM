@@ -79,14 +79,14 @@ namespace beearm
 	    {
 		uint32_t temp = (srcreg + operreg);
 		arm->setreg(dst, temp);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(srcreg, operreg), OVERFLOW_ADD(srcreg, operreg, temp));
 	    }
 	    break;
 	    case 1:
 	    {
 		uint32_t temp = (srcreg - operreg);
 		arm->setreg(dst, temp);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(srcreg, operreg), OVERFLOW_SUB(srcreg, operreg, temp));
 	    }
 	    break;
 	    case 2:
@@ -94,13 +94,14 @@ namespace beearm
 		uint32_t temp = (srcreg + oper);
 		arm->setreg(dst, temp);
 		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(srcreg, oper), OVERFLOW_ADD(srcreg, oper, temp));
 	    }
 	    break;
 	    case 3:
 	    {
 		uint32_t temp = (srcreg - oper);
 		arm->setreg(dst, temp);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(srcreg, oper), OVERFLOW_SUB(srcreg, oper, temp));
 	    }
 	    break;
 	}
@@ -116,6 +117,8 @@ namespace beearm
 	int dst = ((instr >> 8) & 0x7);
 	uint32_t imm = (instr & 0xFF);
 
+	uint32_t dstreg = arm->getreg(dst);
+
 	switch (opcode)
 	{
 	    case 0:
@@ -126,22 +129,22 @@ namespace beearm
 	    break;
 	    case 1:
 	    {
-		uint32_t temp = (arm->getreg(dst) - imm);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		uint32_t temp = (dstreg - imm);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(dstreg, imm), OVERFLOW_SUB(dstreg, imm, temp));
 	    }
 	    break;
 	    case 2:
 	    {
-		uint32_t temp = (arm->getreg(dst) + imm);
+		uint32_t temp = (dstreg + imm);
 		arm->setreg(dst, temp);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(dstreg, imm), OVERFLOW_ADD(dstreg, imm, temp));
 	    }
 	    break;
 	    case 3:
 	    {
-		uint32_t temp = (arm->getreg(dst) - imm);
+		uint32_t temp = (dstreg - imm);
 		arm->setreg(dst, temp);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(dstreg, imm), OVERFLOW_SUB(dstreg, imm, temp));
 	    }
 	    break;
 	    default: cout << "Unrecognized operand of " << hex << (int)(opcode) << endl; exit(1); break;
@@ -187,7 +190,7 @@ namespace beearm
 	    case 0x9:
 	    {
 		temp = (0 - srcreg);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(0, srcreg), OVERFLOW_SUB(0, srcreg, temp));
 		arm->setreg(dst, temp);
 
 		arm->clock(arm->getreg(15), CODE_S16);
@@ -196,7 +199,7 @@ namespace beearm
 	    case 0xA:
 	    {
 		temp = (dstreg - srcreg);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(dstreg, srcreg), OVERFLOW_SUB(dstreg, srcreg, temp));
 		arm->clock(arm->getreg(15), CODE_S16);
 	    }
 	    break;
@@ -502,14 +505,17 @@ namespace beearm
 
 	if (opcode)
 	{
-	    cout << "LDRH" << endl;
-	    exit(1);
+	    arm->clock(addr, DATA_N16);
+	    uint16_t value = arm->readWord((addr & ~1));
+	    arm->clock();
+	    arm->setreg(srcdst, value);
+	    arm->clock((arm->getreg(15) + 2), CODE_S16);
 	}
 	else
 	{
 	    arm->clock(arm->getreg(15), CODE_N16);
 	    uint16_t value = (arm->getreg(srcdst) & 0xFFFF);
-	    arm->writeLong((addr & ~1), value);
+	    arm->writeWord((addr & ~1), value);
 	    arm->clock(addr, DATA_N16);
 	}
     }

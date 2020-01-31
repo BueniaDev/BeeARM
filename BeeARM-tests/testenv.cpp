@@ -97,9 +97,15 @@ void init(string filename)
     arm.armreg.r13irq = 0x3007FA0;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    init("m3_demo.gba");
+    if (argc < 2)
+    {
+	cout << "Usage: " << argv[0] << " FILE" << endl;
+	return 1;
+    }
+
+    init(argv[1]);
 
     for (int i = 0; i < 1000000; i++)
     {

@@ -1,6 +1,44 @@
 #ifndef BEEARM_INTERP_DEFINES
 #define BEEARM_INTERP_DEFINES
 
+#define CARRY_ADD(x, y) carryadd(x, y)
+
+#define CARRY_SUB(x, y) carrysub(x, y)
+
+#define OVERFLOW_ADD(x, y, res) overflowadd(x, y, res)
+
+#define OVERFLOW_SUB(x, y, res) overflowsub(x, y, res)
+
+inline bool carryadd(uint32_t x, uint32_t y)
+{
+    uint64_t op1 = (uint64_t)(x);
+    uint64_t op2 = (uint64_t)(y);
+    return ((op1 + op2) > 0xFFFFFFFF);
+}
+
+inline bool carrysub(uint32_t x, uint32_t y)
+{
+    uint64_t op1 = (uint64_t)(x);
+    uint64_t op2 = (uint64_t)(y);
+    return (op2 <= op1);
+}
+
+inline bool overflowadd(uint32_t x, uint32_t y, uint32_t result)
+{
+    bool op1 = (x >> 31);
+    bool op2 = (y >> 31);
+    bool res = (result >> 31);
+    return ((op1 == op2) && (op1 != res));
+}
+
+inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
+{
+    bool op1 = (x >> 31);
+    bool op2 = (y >> 31);
+    bool res = (result >> 31);
+    return ((op2 != op1) && (op2 == res));
+}
+
 #define RORBASE(x, offs) ((x >> offs) | (x << (32 - offs)))
 
 #define LSL(x, offs) \
