@@ -584,7 +584,7 @@ namespace beearm
 
 	    for (; cycles != 0; cycles--)
 	    {
-		inter->clock();
+		clock();
 	    }
 	}
       }
