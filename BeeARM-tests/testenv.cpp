@@ -99,12 +99,13 @@ void init(string filename)
 
 int main()
 {
-    init("first.gba");
+    init("m3_demo.gba");
 
-    for (int i = 0; i < 100000000; i++)
+    for (int i = 0; i < 1000000; i++)
     {
 	arm.executenextinstr();
 	// arm.printregs();
+	// cout << endl;
     }
 
     cout << "Program execution finished." << endl;

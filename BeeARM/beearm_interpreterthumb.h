@@ -184,6 +184,15 @@ namespace beearm
 		arm->clock(arm->getreg(15), CODE_S16);
 	    }
 	    break;
+	    case 0x9:
+	    {
+		temp = (0 - srcreg);
+		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setreg(dst, temp);
+
+		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
 	    case 0xA:
 	    {
 		temp = (dstreg - srcreg);
@@ -198,6 +207,28 @@ namespace beearm
 		arm->setreg(dst, temp);
 
 		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
+	    case 0xD:
+	    {
+		temp = (dstreg * srcreg);
+
+		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setreg(dst, temp);
+
+		int cycletemp = 0;
+
+		for (int i = 0; i < 4; i++)
+		{
+		    cycletemp += BitGetVal(temp, ((i << 3) + 7)); // Bits 7, 15, 23 and 31
+		}
+
+		arm->clock(arm->getreg(15), CODE_S16);
+
+		for (int i = 0; i < cycletemp; i++)
+		{
+		    arm->clock();
+		}
 	    }
 	    break;
 	    case 0xE:
@@ -218,7 +249,7 @@ namespace beearm
 		arm->clock(arm->getreg(15), CODE_S16);
 	    }
 	    break;
-	    default: cout << "Unrecognized THUMB ALU instruction of " << hex << (int)(opcode) << endl; exit(1); break;
+	    default: cout << "Unrecognized THUMB ALU instruction of " << hex << (int)(opcode) << endl; arm->printregs(); exit(1); break;
 	}
     }
 
@@ -257,6 +288,30 @@ namespace beearm
 
 	switch (opcode)
 	{
+	    case 0:
+	    {
+		if (dst == 15)
+		{
+		    srcreg &= ~1;
+		}
+
+		if (dst != 15)
+		{
+		    uint32_t result = (dstreg + srcreg);
+		    arm->setreg(dst, result);
+		    arm->clock(arm->getreg(15), CODE_S16);
+		}
+		else
+		{
+		    arm->clock(arm->getreg(15), CODE_N16);
+		    uint32_t result = (dstreg + srcreg);
+		    arm->setreg(dst, result);
+		    arm->flushpipeline();
+		    arm->clock(arm->getreg(15), CODE_S16);
+		    arm->clock((arm->getreg(15) + 2), CODE_S16);
+		}
+	    }
+	    break;
 	    case 2:
 	    {
 		if (dst == 15)
@@ -472,8 +527,11 @@ namespace beearm
 
 	if (opcode)
 	{
-	    cout << "THUMB.11 LDR" << endl;
-	    exit(1);
+	    arm->clock(addr, DATA_N32);
+	    uint32_t value = arm->readLong(addr);
+	    arm->clock();
+	    arm->setreg(srcdst, value);
+	    arm->clock((arm->getreg(15) + 2), CODE_S16);
 	}
 	else
 	{
@@ -495,9 +553,25 @@ namespace beearm
     inline void thumb13(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
-	cout << "THUMB.13" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+	
+	uint16_t offs = (instr & 0x7F);
+	bool opcode = TestBit(instr, 7);
+
+	offs <<= 2;
+
+	uint32_t r13 = arm->getreg(13);
+
+	if (opcode)
+	{
+	    r13 -= offs;
+	}
+	else
+	{
+	    r13 += offs;
+	}
+
+	arm->setreg(13, r13);
+	arm->clock(arm->getreg(15), CODE_S16);
     }
 
     inline void thumb14(BeeARM *arm)

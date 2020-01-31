@@ -42,6 +42,11 @@ namespace beearm
     return (reg & ~(1 << bit));
   }
 
+  inline int BitGetVal(uint32_t reg, int bit)
+  {
+    return (reg & (1 << bit)) ? 1 : 0;
+  }
+
   inline uint32_t BitChange(uint32_t reg, int bit, bool cond)
   {
     return (cond) ? BitSet(reg, bit) : BitReset(reg, bit);
@@ -479,6 +484,14 @@ namespace beearm
 	    setcpsr(BitChange(getcpsr(), 29, c));
 	}
 
+	void setnzcv(bool n, bool z, bool c, bool v)
+	{
+	    setcpsr(BitChange(getcpsr(), 31, n));
+	    setcpsr(BitChange(getcpsr(), 30, z));
+	    setcpsr(BitChange(getcpsr(), 29, c));
+	    setcpsr(BitChange(getcpsr(), 28, v));
+	}
+
 	bool getn()
 	{
 	    return TestBit(getcpsr(), 31);
@@ -494,6 +507,11 @@ namespace beearm
 	    return TestBit(getcpsr(), 29);
 	}
 
+	bool getv()
+	{
+	    return TestBit(getcpsr(), 28);
+	}
+
 	inline bool getcond(int instr)
 	{
 	    bool temp = false;
@@ -506,8 +524,14 @@ namespace beearm
 		case 0x3: temp = !getc(); break;
 		case 0x4: temp = getn(); break;
 		case 0x5: temp = !getn(); break;
+		case 0x6: temp = getv(); break;
+		case 0x7: temp = !getv(); break;
 		case 0x8: temp = (getc() && !getz()); break;
-		case 0x9: temp = (!getc() && getz()); break;
+		case 0x9: temp = (!getc() || getz()); break;
+		case 0xA: temp = (getn() == getv()); break;
+		case 0xB: temp = (getn() != getv()); break;
+		case 0xC: temp = (!getz() && (getn() == getv())); break;
+		case 0xD: temp = (getz() || (getn() != getv())); break;
 		case 0xE: temp = true; break;
 		case 0xF: temp = true; break; // Reserved conditon
 		default: cout << "Unrecognized condition of " << hex << (int)(instr) << endl; exit(1); break;
