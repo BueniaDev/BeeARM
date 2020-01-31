@@ -455,6 +455,7 @@ namespace beearm
 	    }
 
 	    cout << "CPSR: " << hex << (int)(getcpsr()) << endl;
+	    cout << "Cycles: " << dec << (int)(clockcycles) << endl;
 	}
 
       void setthumbmode(bool cond)
