@@ -187,6 +187,13 @@ namespace beearm
 		arm->clock(arm->getreg(15), CODE_S16);
 	    }
 	    break;
+	    case 0x8:
+	    {
+		temp = (dstreg & srcreg);
+		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
 	    case 0x9:
 	    {
 		temp = (0 - srcreg);
