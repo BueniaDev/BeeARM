@@ -78,11 +78,12 @@ namespace beearm
 
   void BeeARM::executearminstr(uint32_t instr)
   {
-    for (int i = 0; i < (int)(armmasktable.size()); i++)
+    BeeARMTable table;
+    for (int i = 0; i < (int)(table.armmasktable.size()); i++)
     {
-      if ((instr & armmasktable[i]) == armresulttable[i])
+      if ((instr & table.armmasktable[i]) == table.armresulttable[i])
       {
-        armfunctable[armresulttable[i]](this);
+        table.armfunctable[table.armresulttable[i]](this);
 	return;
       }
     }
@@ -91,11 +92,12 @@ namespace beearm
   void BeeARM::executethumbinstr(uint16_t instr)
   {
     #ifdef BEEARM_ENABLE_THUMB
-    for (int i = 0; i < (int)(thumbmasktable.size()); i++)
+    BeeARMTable table;
+    for (int i = 0; i < (int)(table.thumbmasktable.size()); i++)
     {
-      if ((instr & thumbmasktable[i]) == thumbresulttable[i])
+      if ((instr & table.thumbmasktable[i]) == table.thumbresulttable[i])
       {
-        thumbfunctable[thumbresulttable[i]](this);
+        table.thumbfunctable[table.thumbresulttable[i]](this);
 	return;
       }
     }

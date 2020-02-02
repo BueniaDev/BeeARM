@@ -12,6 +12,9 @@ using namespace beearm;
 
 namespace beearm
 {
+  struct BeeARMTable
+  {
+
   inline void unrecognizedarminstr(BeeARM *arm)
   {
     cout << "Unrecognized opcode at " << hex << (int)(arm->currentarminstr.armvalue) << endl;
@@ -28,7 +31,7 @@ namespace beearm
 
   using armfunc = function<void(BeeARM*)>;
 
-  inline array<uint32_t, 20> armresulttable = 
+  array<uint32_t, 20> armresulttable = 
   {
     0x03200000, 0x01000000, 0x012fff10, 0x00000000, 
     0x00000010, 0x02000000, 0x00000090, 0x00800090,
@@ -37,7 +40,7 @@ namespace beearm
     0x0C000000, 0x0E000000, 0x0E000010, 0x0F000000,
   };
 
-  inline array<uint32_t, 20> armmasktable = 
+  array<uint32_t, 20> armmasktable = 
   {
     0x0FB00000, 0x0F900FF0, 0x0FFFFFD0, 0x0E000010,
     0x0E000090, 0x0E000000, 0x0FC000F0, 0x0F8000F0,
@@ -46,7 +49,7 @@ namespace beearm
     0x0E000000, 0x0F000000, 0x0F000010, 0x0F000000,
   };
 
-  inline unordered_map<uint32_t, armfunc> armfunctable = 
+  unordered_map<uint32_t, armfunc> armfunctable = 
   {
     { 0x03200000, arm6 },
     { 0x01000000, arm6 },
@@ -72,7 +75,7 @@ namespace beearm
 
   #ifdef BEEARM_ENABLE_THUMB
 
-  inline array<uint16_t, 19> thumbresulttable = 
+  array<uint16_t, 19> thumbresulttable = 
   {
     0x1800, 0x0000, 0x2000, 0x4000,
     0x4400, 0x4800, 0x5000, 0x5200,
@@ -81,7 +84,7 @@ namespace beearm
     0xD000, 0xE000, 0xF000,
   };
 
-  inline array<uint16_t, 19> thumbmasktable = 
+  array<uint16_t, 19> thumbmasktable = 
   {
     0xF800, 0xE000, 0xE000, 0xFC00,
     0xFC00, 0xF800, 0xF200, 0xF200,
@@ -90,7 +93,7 @@ namespace beearm
     0xF000, 0xF800, 0xF000,
   };
 
-  inline unordered_map<uint16_t, armfunc> thumbfunctable = 
+  unordered_map<uint16_t, armfunc> thumbfunctable = 
   {
     { 0x1800, thumb2 },
     { 0x0000, thumb1 },
@@ -114,6 +117,7 @@ namespace beearm
   };
 
   #endif
+  };
 };
 
 #endif // BEEARM_TABLES

@@ -1,4 +1,5 @@
 #include "../BeeARM/beearm.h"
+#include "../BeeARM/beearm_tables.h"
 #include <string>
 #include <fstream>
 using namespace beearm;
@@ -107,11 +108,11 @@ int main(int argc, char* argv[])
 
     init(argv[1]);
 
-    for (int i = 0; i < 1000000; i++)
+    for (int i = 0; i < 100; i++)
     {
 	arm.executenextinstr();
-	// arm.printregs();
-	// cout << endl;
+	arm.printregs();
+	cout << endl;
     }
 
     cout << "Program execution finished." << endl;
