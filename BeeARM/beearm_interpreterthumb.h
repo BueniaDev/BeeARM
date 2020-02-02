@@ -185,7 +185,6 @@ namespace beearm
 		arm->setreg(dst, temp);
 
 		arm->clock(arm->getreg(15), CODE_S16);
-		arm->printregs();
 	    }
 	    break;
 	    case 0x2:
