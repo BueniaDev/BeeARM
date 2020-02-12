@@ -599,9 +599,26 @@ namespace beearm
     inline void thumb12(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
-	cout << "THUMB.12" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+	
+	uint16_t offs = (instr & 0xFF);
+	uint8_t dst = ((instr >> 8) & 0x7);
+
+	bool opcode = TestBit(instr, 11);
+
+	offs <<= 2;
+
+	if (opcode)
+	{
+	    uint32_t value = (arm->getreg(13) + offs);
+	    arm->setreg(dst, value);
+	}
+	else
+	{
+	    uint32_t value = (((arm->getreg(15) - 2) & ~0x2) + offs);
+	    arm->setreg(dst, value);
+	}
+	
+	arm->clock(arm->getreg(15), CODE_S16);
     }
 
     inline void thumb13(BeeARM *arm)
