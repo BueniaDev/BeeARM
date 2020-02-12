@@ -419,9 +419,63 @@ namespace beearm
     inline void thumb7(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
-	cout << "THUMB.7" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+	
+	int opcode = ((instr >> 10) & 0x3);
+	int offs = ((instr >> 6) & 0x7);
+	int src = ((instr >> 3) & 0x7);
+	int dst = (instr & 0x7);
+
+	uint32_t srcreg = arm->getreg(src);
+	uint32_t offsreg = arm->getreg(offs);
+	uint32_t dstreg = arm->getreg(dst);
+
+	switch (opcode)
+	{
+	    case 0:
+	    {
+		uint32_t addr = (srcreg + offsreg);
+		arm->writeLong((addr & ~3), dstreg);
+
+		arm->clock(arm->getreg(15), CODE_N16);
+		arm->clock(addr, DATA_N32);
+	    }
+	    break;
+	    case 1:
+	    {
+		uint32_t addr = (srcreg + offsreg);
+		arm->clock(addr, DATA_N32);
+
+		uint32_t value = arm->readLong(addr);
+		arm->clock();
+
+		arm->setreg(dst, value);
+		arm->clock((arm->getreg(15) + 2), CODE_S16);
+	    }
+	    break;
+	    case 2:
+	    {
+		uint32_t addr = (srcreg + offsreg);
+		arm->writeByte(addr, (dstreg & 0xFF));
+
+		arm->clock(arm->getreg(15), CODE_N16);
+		arm->clock(addr, DATA_N16);
+	    }
+	    break;
+	    case 3:
+	    {
+		uint32_t addr = (srcreg + offsreg);
+		arm->clock(addr, DATA_N16);
+
+		uint8_t value = arm->readByte(addr);
+		arm->clock();
+
+		arm->setreg(dst, value);
+		arm->clock((arm->getreg(15) + 2), CODE_S16);
+	    }
+	    break;
+	    default: cout << "Unrecognized THUMB LDR/STR instruction of " << hex << (int)(opcode) << endl; arm->printregs(); exit(1); break;
+	}
+
     }
 
     inline void thumb8(BeeARM *arm)
