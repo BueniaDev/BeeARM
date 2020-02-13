@@ -341,6 +341,13 @@ namespace beearm
 		}
 	    }
 	    break;
+	    case 1:
+	    {
+		uint32_t temp = (dstreg - srcreg);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(dstreg, srcreg), OVERFLOW_SUB(dstreg, srcreg, temp));
+		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
 	    case 2:
 	    {
 		if (dst == 15)
