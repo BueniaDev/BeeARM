@@ -469,8 +469,10 @@ namespace beearm
 
     inline void arm13(BeeARM *arm)
     {
-	cout << "ARM.13-SWI" << endl;
-	exit(1);
+	uint32_t instr = arm->currentarminstr.armvalue;
+	uint32_t comment = (instr & 0xFFFFFF);
+	comment >>= 16;
+	arm->softwareinterrupt(comment);	
     }
 
     inline void arm14(BeeARM *arm)

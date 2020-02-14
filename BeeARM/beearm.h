@@ -66,6 +66,7 @@ namespace beearm
       virtual void writeLong(uint32_t addr, uint32_t val) = 0;
       virtual int clockcycle(uint32_t val, int flags) = 0;
       virtual void update() = 0;
+      virtual void softwareinterrupt(uint8_t val) = 0;
   };
 
   class BeeARM
@@ -134,6 +135,12 @@ namespace beearm
 
         uint32_t r15 = 0;
         uint32_t cpsr = 0;
+
+	uint32_t spsrfiq = 0;
+	uint32_t spsrsvc = 0;
+	uint32_t spsrabt = 0;
+	uint32_t spsrirq = 0;
+	uint32_t spsrund = 0;
 
 	enum armmode : int
 	{
@@ -385,6 +392,36 @@ namespace beearm
           cpsr = val;
 	  setmode(val);
         }
+
+	uint32_t getspsr()
+	{
+	    uint32_t temp = 0;
+
+	    switch (currentmode)
+	    {
+		case armmode::FIQ: temp = spsrfiq; break;
+		case armmode::SVC: temp = spsrsvc; break;
+		case armmode::ABT: temp = spsrabt; break;
+		case armmode::IRQ: temp = spsrirq; break;
+		case armmode::UND: temp = spsrund; break;
+		default: temp = getcpsr(); break;
+	    }
+
+	    return temp;
+	}
+
+	void setspsr(uint32_t val)
+	{
+	    switch (currentmode)
+	    {
+		case armmode::FIQ: spsrfiq = val; break;
+		case armmode::SVC: spsrsvc = val; break;
+		case armmode::ABT: spsrabt = val; break;
+		case armmode::IRQ: spsrirq = val; break;
+		case armmode::UND: spsrund = val; break;
+		default: break;
+	    }
+	}
       };
 
       BeeARMInterface *inter = NULL;
@@ -450,6 +487,16 @@ namespace beearm
       void setcpsr(uint32_t val)
       {
         armreg.setcpsr(val);
+      }
+
+      uint32_t getspsr()
+      {
+        return armreg.getspsr();
+      }
+
+      void setspsr(uint32_t val)
+      {
+        armreg.setspsr(val);
       }
 
 	void printregs()
@@ -620,6 +667,35 @@ namespace beearm
 	    clockcycles += 1;
 	    inter->update();
 	}	
+      }
+
+      void softwareinterrupt(uint8_t val)
+      {
+	if (inter != NULL)
+	{
+	    inter->softwareinterrupt(val);
+	}
+      }
+
+      void swiexception()
+      {
+	  if (instmode == thumbmode)
+	  {
+	      armreg.r14svc = (armreg.getreg(15) - 4);
+	  }
+	  else
+	  {
+	      armreg.r14svc = (armreg.getreg(15) - 4);
+	  }
+
+	  armreg.spsrsvc = getcpsr();
+	  uint32_t temp = getcpsr();
+	  temp = ((temp & ~0x1F) | 0x13);
+	  temp = BitSet(temp, 7);
+	  temp = BitReset(temp, 5);
+	  setcpsr(temp);
+	  armreg.setreg(15, 0x8);
+	  flushpipeline();
       }
   };
 };

@@ -74,6 +74,11 @@ class TestInterface : public BeeARMInterface
     {
 	return;
     }
+
+    void softwareinterrupt(uint8_t val)
+    {
+	return;
+    }
 };
 
 TestInterface::TestInterface()
@@ -93,7 +98,7 @@ void init(string filename)
 {
     inter.loadfile(filename);
     arm.setinterface(&inter);
-    arm.init(0x8000000, 0x5F);
+    arm.init(0x2692, 0x3F);
     arm.armreg.r13 = 0x3007F00;
     arm.armreg.r13irq = 0x3007FA0;
 }
