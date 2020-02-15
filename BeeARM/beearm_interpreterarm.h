@@ -522,6 +522,11 @@ namespace beearm
 	uint32_t srcreg = arm->getreg(src);
 	uint32_t dstreg = arm->getreg(dst);
 
+	if (src == 15)
+	{
+	    srcreg -= 4;
+	}
+
 	uint32_t baseoffs = 0;
 	uint32_t baseaddr = srcreg;
 
@@ -565,11 +570,6 @@ namespace beearm
 	    {
 		uint32_t value = dstreg;
 
-		if (dst == 15)
-		{
-		    value += 4;
-		}
-
 		arm->writeByte(baseaddr, (value & 0xFF));
 		arm->clock(baseaddr, DATA_N16);
 	    }
@@ -577,12 +577,7 @@ namespace beearm
 	    {
 		uint32_t value = dstreg;
 
-		if (dst == 15)
-		{
-		    value += 4;
-		}
-
-		arm->writeLong(baseaddr, value);
+		arm->writeLong((baseaddr & ~3), value);
 		arm->clock(baseaddr, DATA_N32);
 	    }
 	}
