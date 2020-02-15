@@ -522,119 +522,134 @@ namespace beearm
 	uint32_t srcreg = arm->getreg(src);
 	uint32_t dstreg = arm->getreg(dst);
 
-	if (src == 15)
+	uint32_t baseoffs = 0;
+	uint32_t baseaddr = srcreg;
+
+	if (!usereg)
 	{
-	    srcreg -= 4;
+	    baseoffs = (instr & 0xFFF);
+	}
+	else
+	{
+	    uint8_t offsreg = (instr & 0xF);
+	    baseoffs = arm->getreg(offsreg);
+	    uint8_t shifttype = ((instr >> 5) & 0x3);
+	    uint8_t shiftoffs = ((instr >> 7) & 0x1F);
+
+	    switch (shifttype)
+	    {
+		case 0: LSL(baseoffs, shiftoffs); break;
+		case 1: LSR(baseoffs, shiftoffs); break;
+		case 2: ASR(baseoffs, shiftoffs); break;
+		case 3: ROR(baseoffs, shiftoffs); break;
+	    }
 	}
 
-	uint32_t addr = srcreg;
-
-	int immoffs = (instr & 0xFFF);
-	int offs = 0;
-
-	arm->clock(arm->getreg(15), CODE_N32);
-
-	if (ldrorstr)
+	if (preorpost)
 	{
-	    if (usereg)
+	    if (upordown)
 	    {
-		cout << "Shifted register" << endl;
-		exit(1);
+		baseaddr += baseoffs;
 	    }
 	    else
 	    {
-		offs = immoffs;
-		if (preorpost)
+		baseaddr -= baseoffs;
+	    }
+	}
+
+	arm->clock(arm->getreg(15), CODE_N32);
+
+	if (!ldrorstr)
+	{
+	    if (byteorword)
+	    {
+		uint32_t value = dstreg;
+
+		if (dst == 15)
 		{
-		    addr = (upordown) ? (addr + offs) : (addr - offs);
+		    value += 4;
 		}
 
+		arm->writeByte(baseaddr, (value & 0xFF));
+		arm->clock(baseaddr, DATA_N16);
+	    }
+	    else
+	    {
+		uint32_t value = dstreg;
 
-		if (byteorword)
+		if (dst == 15)
 		{
-		    arm->setreg(dst, arm->readByte(addr));
-		    arm->clock();
-		}
-		else
-		{
-		    if ((addr & 0x3) != 0)
-		    {
-			cout << "Misaligned LDR address" << endl;
-			exit(1);
-		    }
-
-		    arm->setreg(dst, arm->readLong(addr));
-		    arm->clock();
+		    value += 4;
 		}
 
-		arm->clock((arm->getreg(15) + 4), (byteorword) ? DATA_N16 : DATA_N32);
-
-		if (!preorpost)
-		{
-		    addr = (upordown) ? (addr + offs) : (addr - offs);
-		}
-
-		if (!preorpost && (src != dst))
-		{
-		    arm->setreg(src, addr);
-		}
-		else if (preorpost && iswriteback && (src != dst))
-		{
-		    arm->setreg(src, addr);
-		}
-
-		if (dst != 15)
-		{
-		    arm->clock(arm->getreg(15), CODE_S32);
-		}
-		else
-		{
-		    cout << "R15 used as register" << endl;
-		    exit(1);
-		}
+		arm->writeLong(baseaddr, value);
+		arm->clock(baseaddr, DATA_N32);
 	    }
 	}
 	else
 	{
-	    if (usereg)
+	    if (byteorword)
 	    {
-		cout << "Shifted register" << endl;
-		exit(1);
+		uint32_t value = arm->readByte(baseaddr);
+		arm->clock();
+
+		if (dst == 15)
+		{
+		    arm->clock((arm->getreg(15) + 4), DATA_N16);
+		}
+
+		arm->setreg(dst, value);
 	    }
 	    else
 	    {
-		offs = immoffs;
-		if (preorpost)
+		uint32_t value = arm->readLong(baseaddr);
+		arm->clock();
+
+		if (dst == 15)
 		{
-		    addr = (upordown) ? (addr + offs) : (addr - offs);
+		    arm->clock((arm->getreg(15) + 4), DATA_N32);
 		}
 
-
-		if (byteorword)
-		{
-		    arm->writeByte(addr, (dstreg & 0xFF));
-		    arm->clock(addr, DATA_N16);
-		}
-		else
-		{
-		    arm->writeLong((addr & ~3), dstreg);
-		    arm->clock(addr, DATA_N32);
-		}
-
-		if (!preorpost)
-		{
-		    addr = (upordown) ? (addr + offs) : (addr - offs);
-		}
-
-		if (!preorpost && (src != dst))
-		{
-		    arm->setreg(src, addr);
-		}
-		else if (preorpost && iswriteback && (src != dst))
-		{
-		    arm->setreg(src, addr);
-		}
+		arm->setreg(dst, value);
 	    }
+	}
+
+	if (!preorpost)
+	{
+	    if (upordown)
+	    {
+		baseaddr += baseoffs;
+	    }
+	    else
+	    {
+		baseaddr -= baseoffs;
+	    }
+	}
+
+	if (!preorpost && (src != dst))
+	{
+	    arm->setreg(src, baseaddr);
+	}
+	else if (preorpost && iswriteback && (src != dst))
+	{
+	    arm->setreg(src, baseaddr);
+	}
+
+	if ((dst == 15) && ldrorstr)
+	{
+	    if (TestBit(arm->getreg(15), 0))
+	    {
+		arm->setthumbmode(true);
+		arm->setreg(15, BitReset(arm->getreg(15), 0));
+	    }
+
+	    arm->clock(arm->getreg(15), CODE_S32);
+	    arm->clock((arm->getreg(15) + 4), CODE_S32);
+	    arm->flushpipeline();
+	}
+	else if ((dst != 15) && ldrorstr)
+	{
+	    arm->clock(arm->getreg(15), CODE_S32);
 	}
     }
 
