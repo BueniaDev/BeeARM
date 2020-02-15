@@ -535,6 +535,23 @@ namespace beearm
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
 	    }
 	    break;
+	    case 3:
+	    {
+		uint32_t addr = (srcreg + offsreg);
+		arm->clock(addr, DATA_N16);
+
+		uint16_t value = arm->readWord(addr);
+		arm->clock();
+
+		if (TestBit(value, 15))
+		{
+		    value |= 0xFFFF0000;
+		}
+
+		arm->setreg(dst, value);
+		arm->clock((arm->getreg(15) + 2), CODE_S16);
+	    }
+	    break;
 	    default: cout << "Unrecognized THUMB LDR/STR instruction of " << hex << (int)(opcode) << endl; arm->printregs(); exit(1); break;
 	}
     }
