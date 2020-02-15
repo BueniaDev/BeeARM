@@ -206,6 +206,91 @@ namespace beearm
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
 	    }
 	    break;
+	    case 0x3:
+	    {
+		uint32_t input = dstreg;
+		uint32_t operand = (srcreg & 0xFF);
+
+		LSR(input, operand);
+		temp = input;
+
+		bool carry = false;
+
+		LSRS(input, operand, carry);
+
+		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
+
+		arm->clock();
+		arm->setreg(dst, temp);
+		arm->clock((arm->getreg(15) + 2), CODE_S16);
+	    }
+	    break;
+	    case 0x4:
+	    {
+		uint32_t input = dstreg;
+		uint32_t operand = (srcreg & 0xFF);
+
+		ASR(input, operand);
+		temp = input;
+
+		bool carry = false;
+
+		ASRS(input, operand, carry);
+
+		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
+
+		arm->clock();
+		arm->setreg(dst, temp);
+		arm->clock((arm->getreg(15) + 2), CODE_S16);
+	    }
+	    break;
+	    case 0x5:
+	    {
+		uint32_t input = dstreg;
+		uint32_t operand = (srcreg & 0xFF);
+
+		int carry = (arm->getc() ? 1 : 0);
+		
+		temp = (input + operand + carry);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(input, operand), OVERFLOW_ADD(input, operand, temp));
+
+		arm->setreg(dst, temp);
+		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
+	    case 0x6:
+	    {
+		uint32_t input = dstreg;
+		uint32_t operand = (srcreg & 0xFF);
+
+		int carry = (arm->getc() ? 0 : 1);
+		
+		temp = (input - operand - carry);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(input, operand), OVERFLOW_SUB(input, operand, temp));
+
+		arm->setreg(dst, temp);
+		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
+	    case 0x7:
+	    {
+		uint32_t input = dstreg;
+		uint32_t operand = (srcreg & 0xFF);
+
+		ROR(input, operand);
+		temp = input;
+
+		bool carry = false;
+
+		RORS(input, operand, carry);
+
+		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
+
+		arm->clock();
+		arm->setreg(dst, temp);
+		arm->clock((arm->getreg(15) + 2), CODE_S16);
+	    }
+	    break;
 	    case 0x8:
 	    {
 		temp = (dstreg & srcreg);
@@ -226,6 +311,13 @@ namespace beearm
 	    {
 		temp = (dstreg - srcreg);
 		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(dstreg, srcreg), OVERFLOW_SUB(dstreg, srcreg, temp));
+		arm->clock(arm->getreg(15), CODE_S16);
+	    }
+	    break;
+	    case 0xB:
+	    {
+		temp = (dstreg + srcreg);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(dstreg, srcreg), OVERFLOW_ADD(dstreg, srcreg, temp));
 		arm->clock(arm->getreg(15), CODE_S16);
 	    }
 	    break;
