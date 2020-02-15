@@ -202,6 +202,18 @@ namespace beearm
 		destval = (srcreg + offs);
 	    }
 	    break;
+	    case 0x8:
+	    {
+		uint32_t temp = (srcreg & offs);
+		arm->setnz(TestBit(temp, 31), (temp == 0));
+	    }
+	    break;
+	    case 0x9:
+	    {
+		uint32_t temp = (srcreg ^ offs);
+		arm->setnz(TestBit(temp, 31), (temp == 0));
+	    }
+	    break;
 	    case 0xA:
 	    {
 		uint32_t temp = (srcreg - offs);
