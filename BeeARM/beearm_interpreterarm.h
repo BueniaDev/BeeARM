@@ -345,8 +345,128 @@ namespace beearm
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.7" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+
+	uint8_t oprmreg = (instr & 0xF);
+	uint8_t oprsreg = ((instr >> 8) & 0xF);
+	uint8_t accumreg = ((instr >> 12) & 0xF);
+	uint8_t destreg = ((instr >> 16) & 0xF);
+
+	bool setcond = TestBit(instr, 20);
+	uint8_t opcode = ((instr >> 21) & 0xF);
+
+	if ((oprmreg == 15) || (oprsreg == 15) || (accumreg == 15) || (destreg == 15))
+	{
+	    cout << "Warning - ARM.7 PC used as register" << endl;
+	}
+
+	uint32_t rm = arm->getreg(oprmreg);
+	uint32_t rs = arm->getreg(oprsreg);
+	uint32_t rn = arm->getreg(accumreg);
+	uint32_t rd = arm->getreg(destreg);
+
+	uint64_t val64 = 1;
+	uint64_t hilo = 0;
+	int64_t vals64 = 1;
+	uint32_t val32 = 0;
+
+	switch (opcode)
+	{
+	    case 0:
+	    {
+		val32 = (rm * rs);
+		arm->setreg(destreg, val32);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(val32, 31), (val32 == 0));
+		}
+	    }
+	    break;
+	    case 1:
+	    {
+		val32 = ((rm * rs) + rn);
+		arm->setreg(destreg, val32);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(val32, 31), (val32 == 0));
+		}
+	    }
+	    break;
+	    case 4:
+	    {
+		val64 = (val64 * rm * rs);
+		rn = (val64 & 0xFFFFFFFF);
+		rd = (val64 >> 32);
+
+		arm->setreg(accumreg, rn);
+		arm->setreg(destreg, rd);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(val64, 63), (val64 == 0));
+		}
+	    }
+	    break;
+	    case 5:
+	    {
+		hilo = rd;
+		hilo <<= 16;
+		hilo <<= 16;
+		hilo |= rn;
+
+		val64 = ((val64 * rm * rs) + hilo);
+		rn = (val64 & 0xFFFFFFFF);
+		rd = (val64 >> 32);
+
+		arm->setreg(accumreg, rn);
+		arm->setreg(destreg, rd);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(val64, 63), (val64 == 0));
+		}
+	    }
+	    break;
+	    case 6:
+	    {
+		vals64 = (vals64 * (int32_t)rm * (int32_t)rs);
+		val64 = vals64;
+		rn = (vals64 & 0xFFFFFFFF);
+		rd = (vals64 >> 32);
+
+		arm->setreg(accumreg, rn);
+		arm->setreg(destreg, rd);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(vals64, 63), (vals64 == 0));
+		}
+	    }
+	    break;
+	    case 7:
+	    {
+		hilo = rd;
+		hilo <<= 16;
+		hilo <<= 16;
+		hilo |= rn;
+
+		vals64 = ((vals64 * (int32_t)rm * (int32_t)rs) + hilo);
+		val64 = vals64;
+		rn = (vals64 & 0xFFFFFFFF);
+		rd = (vals64 >> 32);
+
+		arm->setreg(accumreg, rn);
+		arm->setreg(destreg, rd);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(vals64, 63), (vals64 == 0));
+		}
+	    }
+	    break;
+	    default: cout << "Unrecognized ARM.7 opcode of " << hex << (int)(opcode) << endl; exit(1); break;
+	}
     }
 
     inline void arm8(BeeARM *arm)
