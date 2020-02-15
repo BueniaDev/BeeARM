@@ -598,10 +598,167 @@ namespace beearm
 
     inline void arm11(BeeARM *arm)
     {
+	// TODO: Clock cycle timings (may need hardware testing)
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.11" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+	
+	bool prepost = TestBit(instr, 24);
+	bool updown = TestBit(instr, 23);
+	bool psr = TestBit(instr, 22);
+	bool writeback = TestBit(instr, 21);
+	bool loadstore = TestBit(instr, 20);
+	
+	int base = ((instr >> 16) & 0xF);
+	uint16_t reglist = (instr & 0xFFFF);
+
+	if (base == 15)
+	{
+	    cout << "Warning - PC used as base register" << endl;
+	}
+
+	if (psr)
+	{
+	    cout << "Setting USR mode..." << endl;
+	}
+
+	uint32_t baseaddr = arm->getreg(base);
+	uint32_t oldbase = baseaddr;
+	uint8_t transferreg = 0xFF;
+
+	for (int i = 0; i < 16; i++)
+	{
+	    if (TestBit(reglist, i))
+	    {
+		transferreg = i;
+		i = 0xFF;
+		break;
+	    }
+	}
+
+	if (updown && (reglist != 0))
+	{
+	    for (int i = 0; i < 16; i++)
+	    {
+		if (TestBit(reglist, i))
+		{
+		    if (prepost)
+		    {
+			baseaddr += 4;
+		    }
+
+		    if (!loadstore)
+		    {
+			if ((i == transferreg) && (base == transferreg))
+			{
+			    arm->writeLong(baseaddr, oldbase);
+			}
+			else
+			{
+			    arm->writeLong(baseaddr, arm->getreg(i));
+			}
+		    }
+		    else
+		    {
+			if ((i == transferreg) && (base == transferreg))
+			{
+			    writeback = false;
+			}
+
+			arm->setreg(i, arm->readLong(baseaddr));
+
+			if (i == 15)
+			{
+			    arm->flushpipeline();
+			}
+		    }
+
+		    if (!prepost)
+		    {
+			baseaddr += 4;
+		    }
+		}
+
+		if (writeback)
+		{
+		    arm->setreg(base, baseaddr);
+		}
+	    }
+	}
+	else if (!updown && (reglist != 0))
+	{
+	    for (int i = 15; i >= 0; i--)
+	    {
+		if (TestBit(reglist, i))
+		{
+		    if (prepost)
+		    {
+			baseaddr -= 4;
+		    }
+
+		    if (!loadstore)
+		    {
+			if ((i == transferreg) && (base == transferreg))
+			{
+			    arm->writeLong(baseaddr, oldbase);
+			}
+			else
+			{
+			    arm->writeLong(baseaddr, arm->getreg(i));
+			}
+		    }
+		    else
+		    {
+			if ((i == transferreg) && (base == transferreg))
+			{
+			    writeback = false;
+			}
+
+			arm->setreg(i, arm->readLong(baseaddr));
+
+			if (i == 15)
+			{
+			    arm->flushpipeline();
+			}
+		    }
+
+		    if (!prepost)
+		    {
+			baseaddr -= 4;
+		    }
+		}
+
+		if (writeback)
+		{
+		    arm->setreg(base, baseaddr);
+		}
+	    }
+	}
+	else
+	{
+	    if (!loadstore)
+	    {
+		arm->writeLong(baseaddr, arm->getreg(15));
+	    }
+	    else
+	    {
+		arm->setreg(15, arm->readLong(baseaddr));
+		arm->flushpipeline();
+	    }
+
+	    if (updown)
+	    {
+		arm->setreg(base, (baseaddr + 0x40));
+	    }
+	    else
+	    {
+		arm->setreg(base, (baseaddr - 0x40));
+	    }
+	}
+
+	if (psr)
+	{
+	    cout << "Setting current mode..." << endl;
+	}
     }
 
     inline void arm12(BeeARM *arm)
