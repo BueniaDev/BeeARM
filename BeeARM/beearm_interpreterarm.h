@@ -150,8 +150,9 @@ namespace beearm
 
 	    if (setcond)
 	    {
-		cout << "Change CPSR to SPSR" << endl;
-		exit(1);
+		uint32_t temp = arm->getspsr();
+		arm->setthumbmode(TestBit(temp, 5));
+		arm->setcpsr(temp);
 	    }
 	}
 
