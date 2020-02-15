@@ -85,6 +85,8 @@ namespace beearm
 	uint32_t destval = 0;
 	bool setdest = true;
 
+	bool carryout = false;
+
 	if (useimm)
 	{
 	    int immoffs = (instr & 0xFF);
@@ -112,21 +114,31 @@ namespace beearm
 		    operreg -= 4;
 		}
 
-		if (shifttype != 0)
+		if (shiftoffs == 0)
 		{
-		    cout << "Other shift" << endl;
-		    exit(1);
+		    offs = operreg;
 		}
 		else
 		{
-		    if (shiftoffs != 0)
+		    switch (shifttype)
 		    {
-			cout << "Non-zero shift offset" << endl;
-			exit(1);
-		    }
-		    else
-		    {
-			offs = operreg;
+			case 0:
+			{
+			    uint32_t temp = operreg;
+			    LSLS(temp, shiftoffs, carryout);
+			    LSL(temp, shiftoffs);
+			    offs = temp;
+			}
+			break;
+			case 1:
+			{
+			    uint32_t temp = operreg;
+			    LSRS(temp, shiftoffs, carryout);
+			    LSR(temp, shiftoffs);
+			    offs = temp;
+			}
+			break;
+			default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
 		    }
 		}
 	    }
