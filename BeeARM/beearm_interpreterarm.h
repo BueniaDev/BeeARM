@@ -311,53 +311,44 @@ namespace beearm
 
 	if (ismsr)
 	{
-	    if (isspsr)
+	    if (useimm)
 	    {
-		cout << "MSR SPSR" << endl;
-		exit(1);
+		int immoffs = (instr & 0xFF);
+		int immshift = ((instr >> 8) & 0xF);
+
+		offs = RORBASE(immoffs, immshift);
 	    }
 	    else
 	    {
-		if (useimm)
-		{
-		    int immoffs = (instr & 0xFF);
-		    int immshift = ((instr >> 8) & 0xF);
+		int regoffs = (instr & 0xF);
 
-		    offs = RORBASE(immoffs, immshift);
+		if (regoffs == 15)
+		{
+		    cout << "Used R15 for MSR" << endl;
+		    exit(1);
 		}
 		else
 		{
-		    int regoffs = (instr & 0xF);
-
-		    if (regoffs == 15)
-		    {
-			cout << "Used R15 for MSR" << endl;
-			exit(1);
-		    }
-		    else
-		    {
-			offs = arm->getreg(regoffs);
-		    }
+		    offs = arm->getreg(regoffs);
 		}
 
-		uint32_t temp = arm->getcpsr();
+		uint32_t temp = (isspsr) ? arm->getspsr() : arm->getcpsr();
 		temp &= ~mask;
 		temp |= offs;
 
-		arm->setcpsr(temp);
+		(isspsr) ? arm->setspsr(temp) : arm->setcpsr(temp);
 	    }
 	}
 	else
 	{
-	    if (isspsr)
+	    uint8_t dest = ((instr >> 12) & 0xF);
+
+	    if (dest == 15)
 	    {
-		cout << "MRS SPSR" << endl;
-		exit(1);
+		cout << "Warning - ARM.6 R15 used as destination register" << endl;
 	    }
-	    else
-	    {
-		uint32_t temp = arm->getcpsr();
-	    }
+
+	    arm->setreg(dest, (isspsr) ? arm->getspsr() : arm->getcpsr());
 	}
 
 	arm->clock((arm->getreg(15) + 4), CODE_S32);
