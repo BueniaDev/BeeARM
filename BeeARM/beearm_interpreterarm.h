@@ -446,7 +446,6 @@ namespace beearm
     inline void arm10(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
-	cout << "ARM.10" << endl;
 	
 	bool prepost = TestBit(instr, 24);
 	bool updown = TestBit(instr, 23);
@@ -467,7 +466,7 @@ namespace beearm
 
 	uint32_t baseoffs = 0;
 	uint32_t basereg = arm->getreg(base);
-	uint32_t addr = 0;
+	uint32_t addr = basereg;
 
 	uint32_t destreg = arm->getreg(dst);
 
