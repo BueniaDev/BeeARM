@@ -220,7 +220,7 @@ namespace beearm
 		}
 	    }
 	    break;
-	    default: cout << "Unrecognized ALU instruction" << endl; exit(1); break;
+	    default: cout << "Unrecognized ALU instruction of " << hex << (int)(opcode) << endl; exit(1); break;
 	}
 
 	if (setdest)
