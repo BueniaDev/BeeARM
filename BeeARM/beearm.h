@@ -694,6 +694,7 @@ namespace beearm
 	  temp = BitSet(temp, 7);
 	  temp = BitReset(temp, 5);
 	  setcpsr(temp);
+	  setthumbmode(false);
 	  armreg.setreg(15, 0x8);
 	  flushpipeline();
       }
