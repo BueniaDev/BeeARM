@@ -40,6 +40,11 @@ namespace beearm
 	int offs = (instr & 0xFFFFFF);
 	offs <<= 2;
 
+	if (TestBit(offs, 25))
+	{
+	    offs |= 0xFC000000;
+	}
+
 	if (TestBit(instr, 24))
 	{
 	    arm->setreg(14, (arm->getreg(15) - 8));
