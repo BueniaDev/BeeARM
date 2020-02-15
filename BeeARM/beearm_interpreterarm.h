@@ -148,11 +148,21 @@ namespace beearm
 	    case 0x0:
 	    {
 		destval = (srcreg & offs);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		}
 	    }
 	    break;
 	    case 0x1:
 	    {
 		destval = (srcreg ^ offs);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		}
 	    }
 	    break;
 	    case 0x2:
@@ -173,21 +183,41 @@ namespace beearm
 	    case 0xC:
 	    {
 		destval = (srcreg | offs);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		}
 	    }
 	    break;
 	    case 0xD:
 	    {
 		destval = offs;
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		}
 	    }
 	    break;
 	    case 0xE:
 	    {
 		destval = (srcreg & ~offs);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		}
 	    }
 	    break;
 	    case 0xF:
 	    {
 		destval = (~srcreg);
+
+		if (setcond)
+		{
+		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		}
 	    }
 	    break;
 	    default: cout << "Unrecognized ALU instruction" << endl; exit(1); break;
