@@ -447,8 +447,154 @@ namespace beearm
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
 	cout << "ARM.10" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+	
+	bool prepost = TestBit(instr, 24);
+	bool updown = TestBit(instr, 23);
+	bool offsisreg = TestBit(instr, 22);
+	bool writeback = TestBit(instr, 21);
+	bool loadstore = TestBit(instr, 20);
+
+	int base = ((instr >> 16) & 0xF);
+	int dst = ((instr >> 12) & 0xF);
+	int opcode = ((instr >> 5) & 0x3);
+	int offs = (instr & 0xF);
+	int offsup = ((instr >> 8) & 0xF);
+
+	if (!prepost)
+	{
+	    writeback = true;
+	}
+
+	uint32_t baseoffs = 0;
+	uint32_t basereg = arm->getreg(base);
+	uint32_t addr = 0;
+
+	uint32_t destreg = arm->getreg(dst);
+
+	if (!offsisreg)
+	{
+	    baseoffs = arm->getreg(offs);
+
+	    if (offs == 15)
+	    {
+		cout << "Warning - ARM.10 offset register is PC" << endl;
+	    }
+	}
+	else
+	{
+	    baseoffs = ((offsup << 4) | offs);
+	}
+
+	if (prepost)
+	{
+	    if (updown)
+	    {
+		addr = (basereg + baseoffs);
+	    }
+	    else
+	    {
+		addr = (basereg - baseoffs);
+	    }
+	}
+
+	switch (opcode)
+	{
+	    case 1:
+	    {
+		if (!loadstore)
+		{
+		    if (dst == 15)
+		    {
+			destreg += 4;
+		    }
+
+		    arm->writeWord(addr, (destreg & 0xFFFF));
+
+		    arm->clock(arm->getreg(15), CODE_N16);
+		    arm->clock(addr, DATA_N16);
+		}
+		else
+		{
+		    if (dst == 15)
+		    {
+			arm->clock(arm->getreg(15), CODE_S16);
+			arm->clock((arm->getreg(15) + 2), CODE_N16);
+		    }
+
+		    arm->clock(arm->getreg(15), CODE_S16);
+
+		    arm->setreg(dst, arm->readWord(addr));
+
+		    arm->clock(addr, DATA_N16);
+		    arm->clock();
+		}
+	    }
+	    break;
+	    case 0x2:
+	    {
+		if (dst == 15)
+		{
+		    arm->clock(arm->getreg(15), CODE_S32);
+		    arm->clock((arm->getreg(15) + 2), CODE_N32);
+		}
+
+		arm->clock(arm->getreg(15), CODE_S32);
+
+		uint32_t value = arm->readByte(addr);
+
+		if (TestBit(value, 7))
+		{
+		    value |= 0xFFFFFF00;
+		}
+
+		arm->setreg(dst, value);
+
+		arm->clock(addr, DATA_N32);
+		arm->clock();
+	    }
+	    break;
+	    case 0x3:
+	    {
+		if (dst == 15)
+		{
+		    arm->clock(arm->getreg(15), CODE_S16);
+		    arm->clock((arm->getreg(15) + 2), CODE_N16);
+		}
+
+		arm->clock(arm->getreg(15), CODE_S16);
+
+		uint32_t value = arm->readWord(addr);
+
+		if (TestBit(value, 15))
+		{
+		    value |= 0xFFFF0000;
+		}
+
+		arm->setreg(dst, value);
+
+		arm->clock(addr, DATA_N16);
+		arm->clock();
+	    }
+	    break;
+	    default: cout << "ARM.12 Swap" << endl; exit(1); break;
+	}
+
+	if (!prepost)
+	{
+	    if (updown)
+	    {
+		addr = (basereg + baseoffs);
+	    }
+	    else
+	    {
+		addr = (basereg - baseoffs);
+	    }
+	}
+
+	if (writeback && (base != dst))
+	{
+	    arm->setreg(base, addr);
+	}
     }
 
     inline void arm11(BeeARM *arm)
