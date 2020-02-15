@@ -82,7 +82,7 @@ namespace beearm
 	}
 
 	uint32_t offs = 0;
-	uint32_t destval = 0;
+	uint32_t destval = arm->getreg(dest);
 	bool setdest = true;
 
 	bool carryout = false;
@@ -180,11 +180,21 @@ namespace beearm
 	    case 0x2:
 	    {
 		destval = (srcreg - offs);
+
+		if (setcond)
+		{
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(srcreg, offs), OVERFLOW_SUB(srcreg, offs, destval));
+		}
 	    }
 	    break;
 	    case 0x3:
 	    {
 		destval = (offs - srcreg);
+
+		if (setcond)
+		{
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(offs, srcreg), OVERFLOW_SUB(offs, srcreg, destval));
+		}
 	    }
 	    break;
 	    case 0x4:
