@@ -180,6 +180,12 @@ namespace beearm
 		destval = (srcreg + offs);
 	    }
 	    break;
+	    case 0xA:
+	    {
+		uint32_t temp = (srcreg - offs);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(srcreg, offs), OVERFLOW_SUB(srcreg, offs, temp));
+	    }
+	    break;
 	    case 0xC:
 	    {
 		destval = (srcreg | offs);
