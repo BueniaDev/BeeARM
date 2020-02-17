@@ -147,13 +147,6 @@ namespace beearm
 	if (dest == 15)
 	{
 	    arm->clock(arm->getreg(15), CODE_N32);
-
-	    if (setcond)
-	    {
-		uint32_t temp = arm->getspsr();
-		arm->setthumbmode(TestBit(temp, 5));
-		arm->setcpsr(temp);
-	    }
 	}
 
 	switch (opcode)
@@ -271,6 +264,16 @@ namespace beearm
 
 	if (dest == 15)
 	{
+	    arm->flushpipeline();
+
+	    if (setcond)
+	    {
+		uint32_t temp = arm->getspsr();
+		arm->setthumbmode(TestBit(temp, 5));
+		arm->setcpsr(temp);
+		return;
+	    }
+
 	    if (TestBit(arm->getreg(15), 0))
 	    {
 		arm->setthumbmode(true);
@@ -280,8 +283,6 @@ namespace beearm
 	    {
 		arm->setreg(15, (arm->getreg(15) & ~3));
 	    }
-
-	    arm->flushpipeline();
 
 	    arm->clock(arm->getreg(15), CODE_S32);
 	}
