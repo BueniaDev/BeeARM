@@ -698,6 +698,28 @@ namespace beearm
 	  armreg.setreg(15, 0x8);
 	  flushpipeline();
       }
+
+      void irqexception()
+      {
+	  if (instmode == thumbmode)
+	  {
+	      armreg.r14svc = (armreg.getreg(15) - 2);
+	  }
+	  else
+	  {
+	      armreg.r14svc = (armreg.getreg(15) - 4);
+	  }
+
+	  armreg.spsrsvc = getcpsr();
+	  uint32_t temp = getcpsr();
+	  temp = ((temp & ~0x1F) | 0x12);
+	  temp = BitSet(temp, 7);
+	  temp = BitReset(temp, 5);
+	  setcpsr(temp);
+	  setthumbmode(false);
+	  armreg.setreg(15, 0x18);
+	  flushpipeline();
+      }
   };
 };
 
