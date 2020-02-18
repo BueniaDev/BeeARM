@@ -192,12 +192,12 @@ namespace beearm
 		uint32_t input = dstreg;
 		uint32_t operand = (srcreg & 0xFF);
 
-		LSL(input, operand);
+		bool carry = false;
+		LSLREGS(input, operand, carry);
+
+		LSLREG(input, operand);
 		temp = input;
 
-		bool carry = false;
-
-		LSLS(input, operand, carry);
 
 		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
 

@@ -54,6 +54,30 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
 	carry = TestBit(arm->getcpsr(), 29); \
     } \
 
+#define LSLREG(x, offs) \
+    if (offs > 31) \
+    { \
+	x = 0; \
+    } \
+    else \
+    { \
+	x <<= offs; \
+    } \
+
+#define LSLREGS(x, offs, carry) \
+    if (offs > 31) \
+    { \
+	carry = (offs > 32) ? false : TestBit(x, 0); \
+    } \
+    else if (offs > 0) \
+    { \
+	carry = TestBit(x, (32 - offs)); \
+    } \
+    else \
+    { \
+	carry = TestBit(arm->getcpsr(), 29); \
+    } \
+
 #define LSR(x, offs) \
     if (offs == 0) \
     { \
