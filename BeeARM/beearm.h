@@ -703,11 +703,11 @@ namespace beearm
       {
 	  if (instmode == thumbmode)
 	  {
-	      armreg.r14svc = (armreg.getreg(15) - 2);
+	      armreg.r14irq = (armreg.getreg(15) - 2);
 	  }
 	  else
 	  {
-	      armreg.r14svc = (armreg.getreg(15) - 4);
+	      armreg.r14irq = (armreg.getreg(15) - 4);
 	  }
 
 	  armreg.spsrsvc = getcpsr();
