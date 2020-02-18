@@ -710,7 +710,7 @@ namespace beearm
 	      armreg.r14irq = (armreg.getreg(15) - 4);
 	  }
 
-	  armreg.spsrsvc = getcpsr();
+	  armreg.spsrirq = getcpsr();
 	  uint32_t temp = getcpsr();
 	  temp = ((temp & ~0x1F) | 0x12);
 	  temp = BitSet(temp, 7);
