@@ -277,12 +277,11 @@ namespace beearm
 		uint32_t input = dstreg;
 		uint32_t operand = (srcreg & 0xFF);
 
-		ROR(input, operand);
-		temp = input;
-
 		bool carry = false;
+		RORREGS(input, operand, carry);
 
-		RORS(input, operand, carry);
+		RORREG(input, operand);
+		temp = input;
 
 		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
 

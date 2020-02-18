@@ -138,4 +138,18 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
 	carry = TestBit(x, (offs - 1)); \
     }
 
+#define RORREG(x, offs) \
+    x = RORBASE(x, (offs & 0x1F));
+
+#define RORREGS(x, offs, carry) \
+    if (offs > 0) \
+    { \
+	carry = TestBit(x, (offs - 1)); \
+    } \
+    else \
+    { \
+	carry = TestBit(arm->getcpsr(), 29); \
+    }
+
+
 #endif // BEEARM_INTERP_DEFINES
