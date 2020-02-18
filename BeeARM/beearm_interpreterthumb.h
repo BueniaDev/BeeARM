@@ -546,6 +546,13 @@ namespace beearm
 		uint32_t value = arm->readLong(addr);
 		arm->clock();
 
+		if ((addr & 0x3) != 0)
+		{
+		    uint8_t offs = ((addr & 0x3) << 3);
+		    value = arm->readLong((addr & ~3));
+		    value = RORBASE(value, offs);
+		}
+
 		arm->setreg(dst, value);
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
 	    }
@@ -595,7 +602,7 @@ namespace beearm
 	    {
 		arm->clock(arm->getreg(15), CODE_N16);
 		uint32_t addr = (srcreg + offsreg);
-		arm->writeWord(addr, (dstreg & 0xFFFF));
+		arm->writeWord((addr & ~1), (dstreg & 0xFFFF));
 		arm->clock(addr, DATA_N16);
 	    }
 	    break;
@@ -622,6 +629,14 @@ namespace beearm
 		arm->clock(addr, DATA_N16);
 		uint32_t value = arm->readLong(addr);
 		arm->clock();
+
+		if ((addr & 0x3) != 0)
+		{
+		    uint8_t offs = ((addr & 0x3) << 3);
+		    value = arm->readLong((addr & ~3));
+		    value = RORBASE(value, offs);
+		}
+
 		arm->setreg(dst, value);
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
 	    }
@@ -679,6 +694,13 @@ namespace beearm
 
 		uint32_t value = arm->readLong(addr);
 		arm->clock();
+
+		if ((addr & 0x3) != 0)
+		{
+		    uint8_t offs = ((addr & 0x3) << 3);
+		    value = arm->readLong((addr & ~3));
+		    value = RORBASE(value, offs);
+		}
 
 		arm->setreg(dst, value);
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
@@ -753,6 +775,7 @@ namespace beearm
 	    arm->clock(addr, DATA_N32);
 	    uint32_t value = arm->readLong(addr);
 	    arm->clock();
+
 	    arm->setreg(srcdst, value);
 	    arm->clock((arm->getreg(15) + 2), CODE_S16);
 	}
