@@ -541,6 +541,15 @@ namespace beearm
 	    case 1:
 	    {
 		uint32_t addr = (srcreg + offsreg);
+		arm->writeByte(addr, (dstreg & 0xFF));
+
+		arm->clock(arm->getreg(15), CODE_N16);
+		arm->clock(addr, DATA_N16);
+	    }
+	    break;
+	    case 2:
+	    {
+		uint32_t addr = (srcreg + offsreg);
 		arm->clock(addr, DATA_N32);
 
 		uint32_t value = arm->readLong(addr);
@@ -555,15 +564,6 @@ namespace beearm
 
 		arm->setreg(dst, value);
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
-	    }
-	    break;
-	    case 2:
-	    {
-		uint32_t addr = (srcreg + offsreg);
-		arm->writeByte(addr, (dstreg & 0xFF));
-
-		arm->clock(arm->getreg(15), CODE_N16);
-		arm->clock(addr, DATA_N16);
 	    }
 	    break;
 	    case 3:
@@ -627,15 +627,8 @@ namespace beearm
 	    {
 		uint32_t addr = (srcreg + offsreg);
 		arm->clock(addr, DATA_N16);
-		uint32_t value = arm->readLong(addr);
+		uint32_t value = arm->readWord((addr & ~1));
 		arm->clock();
-
-		if ((addr & 0x3) != 0)
-		{
-		    uint8_t offs = ((addr & 0x3) << 3);
-		    value = arm->readLong((addr & ~3));
-		    value = RORBASE(value, offs);
-		}
 
 		arm->setreg(dst, value);
 		arm->clock((arm->getreg(15) + 2), CODE_S16);
