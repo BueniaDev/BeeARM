@@ -138,6 +138,14 @@ namespace beearm
 			    offs = temp;
 			}
 			break;
+			case 2:
+			{
+			    uint32_t temp = operreg;
+			    ASRS(temp, shiftoffs, carryout);
+			    ASR(temp, shiftoffs);
+			    offs = temp;
+			}
+			break;
 			default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
 		    }
 		}
@@ -194,6 +202,11 @@ namespace beearm
 	    case 0x4:
 	    {
 		destval = (srcreg + offs);
+
+		if (setcond)
+		{
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(offs, srcreg), OVERFLOW_ADD(offs, srcreg, destval));
+		}
 	    }
 	    break;
 	    case 0x8:
