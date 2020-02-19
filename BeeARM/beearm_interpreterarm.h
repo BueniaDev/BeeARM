@@ -497,14 +497,6 @@ namespace beearm
 	}
     }
 
-    inline void arm8(BeeARM *arm)
-    {
-	uint32_t instr = arm->currentarminstr.armvalue;
-	cout << "ARM.8" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
-    }
-
     inline void arm9(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
