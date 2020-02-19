@@ -73,8 +73,11 @@ namespace beearm
 	int opcode = ((instr >> 21) & 0xF);
 	int dest = ((instr >> 12) & 0xF);
 	int src = ((instr >> 16) & 0xF);
+	int oper = (instr & 0xF);
 
 	uint32_t srcreg = arm->getreg(src);
+
+	uint32_t operreg = arm->getreg(oper);
 
 	if (src == 15)
 	{
@@ -86,6 +89,8 @@ namespace beearm
 	bool setdest = true;
 
 	bool carryout = false;
+
+	int shiftoffs = 0;
 
 	if (useimm)
 	{
@@ -100,55 +105,51 @@ namespace beearm
 	    int shifttype = ((instr >> 5) & 0x3);
 	    if (useregimm)
 	    {
-		cout << "Shift register used" << endl;
-		exit(1);
+		shiftoffs = arm->getreg(((instr >> 8) & 0xF));
+
+		if ((instr >> 8) & 0xF)
+		{
+		    cout << "Error - Shifting register operand by PC" << endl;
+		    exit(1);
+		}
 	    }
 	    else
 	    {
-		int shiftoffs = ((instr >> 7) & 0x1F);
-		int oper = (instr & 0xF);
-		uint32_t operreg = arm->getreg(oper);
+		shiftoffs = ((instr >> 7) & 0x1F);
 
 		if (oper == 15)
 		{
 		    operreg -= 4;
 		}
+	    }
 
-		if (shiftoffs == 0)
+	    switch (shifttype)
+	    {
+		case 0:
 		{
-		    offs = operreg;
+		    uint32_t temp = operreg;
+		    LSLS(temp, shiftoffs, carryout);
+		    LSL(temp, shiftoffs);
+		    offs = temp;
 		}
-		else
+		break;
+		case 1:
 		{
-		    switch (shifttype)
-		    {
-			case 0:
-			{
-			    uint32_t temp = operreg;
-			    LSLS(temp, shiftoffs, carryout);
-			    LSL(temp, shiftoffs);
-			    offs = temp;
-			}
-			break;
-			case 1:
-			{
-			    uint32_t temp = operreg;
-			    LSRS(temp, shiftoffs, carryout);
-			    LSR(temp, shiftoffs);
-			    offs = temp;
-			}
-			break;
-			case 2:
-			{
-			    uint32_t temp = operreg;
-			    ASRS(temp, shiftoffs, carryout);
-			    ASR(temp, shiftoffs);
-			    offs = temp;
-			}
-			break;
-			default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
-		    }
+		    uint32_t temp = operreg;
+		    LSRS(temp, shiftoffs, carryout);
+		    LSR(temp, shiftoffs);
+		    offs = temp;
 		}
+		break;
+		case 2:
+		{
+		    uint32_t temp = operreg;
+		    ASRS(temp, shiftoffs, carryout);
+		    ASR(temp, shiftoffs);
+		    offs = temp;
+		}
+		break;
+		default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
 	    }
 	}
 
@@ -270,10 +271,7 @@ namespace beearm
 	    default: cout << "Unrecognized ALU instruction of " << hex << (int)(opcode) << endl; exit(1); break;
 	}
 
-	if (setdest)
-	{
-	    arm->setreg(dest, destval);
-	}
+	arm->setreg(dest, destval);
 
 	if (dest == 15)
 	{
