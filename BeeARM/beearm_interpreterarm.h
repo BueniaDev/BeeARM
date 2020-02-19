@@ -107,7 +107,7 @@ namespace beearm
 	    {
 		shiftoffs = arm->getreg(((instr >> 8) & 0xF));
 
-		if ((instr >> 8) & 0xF)
+		if (((instr >> 8) & 0xF) == 15)
 		{
 		    cout << "Error - Shifting register operand by PC" << endl;
 		    exit(1);
