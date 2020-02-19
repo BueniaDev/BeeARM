@@ -370,7 +370,6 @@ namespace beearm
     inline void arm7(BeeARM *arm)
     {
 	uint32_t instr = arm->currentarminstr.armvalue;
-	cout << "ARM.7" << endl;
 
 	uint8_t oprmreg = (instr & 0xF);
 	uint8_t oprsreg = ((instr >> 8) & 0xF);
@@ -801,7 +800,6 @@ namespace beearm
     {
 	// TODO: Clock cycle timings (may need hardware testing)
 	uint32_t instr = arm->currentarminstr.armvalue;
-	cout << "ARM.11" << endl;
 	
 	bool prepost = TestBit(instr, 24);
 	bool updown = TestBit(instr, 23);
