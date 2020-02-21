@@ -88,7 +88,7 @@ namespace beearm
 	uint32_t destval = arm->getreg(dest);
 	bool setdest = true;
 
-	bool carryout = false;
+	bool carryout = arm->getc();
 
 	int shiftoffs = 0;
 
@@ -234,7 +234,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		    arm->setnzc(TestBit(destval, 31), (destval == 0), carryout);
 		}
 	    }
 	    break;
@@ -244,7 +244,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		    arm->setnzc(TestBit(destval, 31), (destval == 0), carryout);
 		}
 	    }
 	    break;
@@ -254,7 +254,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		    arm->setnzc(TestBit(destval, 31), (destval == 0), carryout);
 		}
 	    }
 	    break;
@@ -264,7 +264,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		    arm->setnzc(TestBit(destval, 31), (destval == 0), carryout);
 		}
 	    }
 	    break;
