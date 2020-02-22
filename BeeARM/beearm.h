@@ -703,7 +703,7 @@ namespace beearm
       {
 	  if (instmode == thumbmode)
 	  {
-	      armreg.r14irq = (armreg.getreg(15) - 2);
+	      armreg.r14irq = (armreg.getreg(15));
 	  }
 	  else
 	  {
