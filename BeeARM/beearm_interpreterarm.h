@@ -149,6 +149,14 @@ namespace beearm
 		    offs = temp;
 		}
 		break;
+		case 3:
+		{
+		    uint32_t temp = operreg;
+		    RORS(temp, shiftoffs, carryout);
+		    ROR(temp, shiftoffs);
+		    offs = temp;
+		}
+		break;
 		default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
 	    }
 	}
@@ -166,7 +174,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		    arm->setnzc(TestBit(destval, 31), (destval == 0), carryout);
 		}
 	    }
 	    break;
@@ -176,7 +184,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(destval, 31), (destval == 0));
+		    arm->setnzc(TestBit(destval, 31), (destval == 0), carryout);
 		}
 	    }
 	    break;
@@ -206,26 +214,65 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(offs, srcreg), OVERFLOW_ADD(offs, srcreg, destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(srcreg, offs), OVERFLOW_ADD(srcreg, offs, destval));
+		}
+	    }
+	    break;
+	    case 0x5:
+	    {
+		int carry = arm->getc() ? 1 : 0;
+		destval = (srcreg + offs + carry);
+
+		if (setcond)
+		{
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(srcreg, (offs + carry)), OVERFLOW_ADD(srcreg, (offs + carry), destval));
+		}
+	    }
+	    break;
+	    case 0x6:
+	    {
+		int carry = arm->getc() ? 0 : 1;
+		destval = (srcreg - offs - carry);
+
+		if (setcond)
+		{
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(srcreg, (offs - carry)), OVERFLOW_SUB(srcreg, (offs - carry), destval));
+		}
+	    }
+	    break;
+	    case 0x7:
+	    {
+		int carry = arm->getc() ? 0 : 1;
+		destval = (offs - srcreg - carry);
+
+		if (setcond)
+		{
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB((offs - carry), srcreg), OVERFLOW_SUB((offs - carry), srcreg, destval));
 		}
 	    }
 	    break;
 	    case 0x8:
 	    {
 		uint32_t temp = (srcreg & offs);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzc(TestBit(temp, 31), (temp == 0), carryout);
 	    }
 	    break;
 	    case 0x9:
 	    {
 		uint32_t temp = (srcreg ^ offs);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
+		arm->setnzc(TestBit(temp, 31), (temp == 0), carryout);
 	    }
 	    break;
 	    case 0xA:
 	    {
 		uint32_t temp = (srcreg - offs);
 		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(srcreg, offs), OVERFLOW_SUB(srcreg, offs, temp));
+	    }
+	    break;
+	    case 0xB:
+	    {
+		uint32_t temp = (srcreg + offs);
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(srcreg, offs), OVERFLOW_ADD(srcreg, offs, temp));
 	    }
 	    break;
 	    case 0xC:
@@ -260,7 +307,7 @@ namespace beearm
 	    break;
 	    case 0xF:
 	    {
-		destval = (~srcreg);
+		destval = (~offs);
 
 		if (setcond)
 		{
