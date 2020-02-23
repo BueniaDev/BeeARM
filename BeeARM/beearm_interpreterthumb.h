@@ -1097,7 +1097,6 @@ namespace beearm
     inline void thumb17(BeeARM *arm)
     {
 	uint16_t instr = arm->currentthumbinstr.thumbvalue;
-	cout << "THUMB.17" << endl;
 	uint8_t comment = (instr & 0xFF);
 	arm->softwareinterrupt(comment);
     }
