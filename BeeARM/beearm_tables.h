@@ -26,6 +26,20 @@ namespace beearm
   }
   #endif // BEEARM_ENABLE_THUMB
 
+  inline void arm7t10(BeeARM *arm)
+  {
+    uint32_t instr = arm->currentarminstr.armvalue;
+
+    if (((instr >> 4) & 0xF) == 9)
+    {
+	arm7(arm);
+    }
+    else
+    {
+	arm10(arm);
+    }
+  }
+
   using armfunc = function<void(BeeARM*)>;
 
   inline array<uint32_t, 19> armresulttable = 
@@ -54,9 +68,9 @@ namespace beearm
     { 0x00000000, arm5 },
     { 0x00000010, arm5 },
     { 0x02000000, arm5 },
-    { 0x00000090, arm7 },
+    { 0x00000090, arm7t10 },
     { 0x01000090, arm12 },
-    { 0x00000090, arm10 },
+    { 0x00000090, arm7t10 },
     { 0x00400090, arm10 },
     { 0x04000000, arm9 },
     { 0x06000000, arm9 },
