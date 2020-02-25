@@ -112,6 +112,43 @@ namespace beearm
 		    cout << "Error - Shifting register operand by PC" << endl;
 		    exit(1);
 		}
+
+	    	switch (shifttype)
+	    	{
+		    case 0:
+		    {
+		    	uint32_t temp = operreg;
+		   	LSLREGS(temp, shiftoffs, carryout);
+		    	LSLREG(temp, shiftoffs);
+		    	offs = temp;
+		    }
+	 	    break;
+		    case 1:
+		    {
+		    	uint32_t temp = operreg;
+		    	LSRREGS(temp, shiftoffs, carryout);
+		    	LSRREG(temp, shiftoffs);
+		    	offs = temp;
+		    }
+		    break;
+		    case 2:
+		    {
+			uint32_t temp = operreg;
+			ASRREGS(temp, shiftoffs, carryout);
+			ASRREG(temp, shiftoffs);
+			offs = temp;
+		    }
+	 	    break;
+		    case 3:
+		    {
+			uint32_t temp = operreg;
+			RORREGS(temp, shiftoffs, carryout);
+			RORREG(temp, shiftoffs);
+			offs = temp;
+		    }
+		    break;
+		    default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
+	        }
 	    }
 	    else
 	    {
@@ -121,43 +158,42 @@ namespace beearm
 		{
 		    operreg -= 4;
 		}
-	    }
-
-	    switch (shifttype)
-	    {
-		case 0:
-		{
-		    uint32_t temp = operreg;
-		    LSLS(temp, shiftoffs, carryout);
-		    LSL(temp, shiftoffs);
-		    offs = temp;
-		}
-		break;
-		case 1:
-		{
-		    uint32_t temp = operreg;
-		    LSRS(temp, shiftoffs, carryout);
-		    LSR(temp, shiftoffs);
-		    offs = temp;
-		}
-		break;
-		case 2:
-		{
-		    uint32_t temp = operreg;
-		    ASRS(temp, shiftoffs, carryout);
-		    ASR(temp, shiftoffs);
-		    offs = temp;
-		}
-		break;
-		case 3:
-		{
-		    uint32_t temp = operreg;
-		    RORS(temp, shiftoffs, carryout);
-		    ROR(temp, shiftoffs);
-		    offs = temp;
-		}
-		break;
-		default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
+	    	switch (shifttype)
+	    	{
+		    case 0:
+		    {
+		    	uint32_t temp = operreg;
+		   	LSLS(temp, shiftoffs, carryout);
+		    	LSL(temp, shiftoffs);
+		    	offs = temp;
+		    }
+	 	    break;
+		    case 1:
+		    {
+		    	uint32_t temp = operreg;
+		    	LSRS(temp, shiftoffs, carryout);
+		    	LSR(temp, shiftoffs);
+		    	offs = temp;
+		    }
+		    break;
+		    case 2:
+		    {
+			uint32_t temp = operreg;
+			ASRS(temp, shiftoffs, carryout);
+			ASR(temp, shiftoffs);
+			offs = temp;
+		    }
+	 	    break;
+		    case 3:
+		    {
+			uint32_t temp = operreg;
+			RORS(temp, shiftoffs, carryout);
+			ROR(temp, shiftoffs);
+			offs = temp;
+		    }
+		    break;
+		    default: cout << "Unrecognized shift of " << hex << (int)(shifttype) << endl; exit(1); break;
+	        }
 	    }
 	}
 

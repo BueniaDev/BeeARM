@@ -42,6 +42,19 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
 #define RORBASE(x, offs) ((x >> offs) | (x << (32 - offs)))
 
 #define LSL(x, offs) \
+    x <<= offs;
+
+#define LSLS(x, offs, carry) \
+    if (offs > 0) \
+    { \
+	carry = TestBit(x, (32 - offs)); \
+    } \
+    else \
+    { \
+	carry = TestBit(arm->getcpsr(), 29); \
+    } \
+
+#define LSLREG(x, offs) \
     if (offs > 31) \
     { \
 	x = 0; \
@@ -51,7 +64,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
 	x <<= offs; \
     } \
 
-#define LSLS(x, offs, carry) \
+#define LSLREGS(x, offs, carry) \
     if (offs > 31) \
     { \
 	carry = (offs > 32) ? false : TestBit(x, 0); \
@@ -66,7 +79,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     } \
 
 #define LSR(x, offs) \
-    if (offs > 31) \
+    if (offs == 0) \
     { \
 	x = 0; \
     } \
@@ -76,6 +89,26 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     }
 
 #define LSRS(x, offs, carry) \
+    if (offs == 0) \
+    { \
+	carry = TestBit(x, 31); \
+    } \
+    else \
+    { \
+	carry = TestBit(x, (offs - 1)); \
+    }
+
+#define LSRREG(x, offs) \
+    if (offs > 31) \
+    { \
+	x = 0; \
+    } \
+    else \
+    { \
+	x >>= offs; \
+    }
+
+#define LSRREGS(x, offs, carry) \
     if (offs > 31) \
     { \
 	carry = TestBit(x, 31); \
@@ -86,7 +119,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     }
 
 #define ASR(x, offs) \
-    if (offs > 31) \
+    if (offs == 0) \
     { \
 	x = (((int32_t)x) >> 31); \
     } \
@@ -96,6 +129,26 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     }
 
 #define ASRS(x, offs, carry) \
+    if (offs == 0) \
+    { \
+	carry = TestBit(x, 31); \
+    } \
+    else \
+    { \
+	carry = TestBit(x, (offs - 1)); \
+    }
+
+#define ASRREG(x, offs) \
+    if (offs > 31) \
+    { \
+	x = (((int32_t)x) >> 31); \
+    } \
+    else \
+    { \
+	x= (((int32_t)x) >> offs); \
+    }
+
+#define ASRREGS(x, offs, carry) \
     if (offs > 31) \
     { \
 	carry = TestBit(x, 31); \

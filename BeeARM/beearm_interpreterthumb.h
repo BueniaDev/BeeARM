@@ -193,9 +193,9 @@ namespace beearm
 		uint32_t operand = (srcreg & 0xFF);
 
 		bool carry = false;
-		LSLS(input, operand, carry);
+		LSLREGS(input, operand, carry);
 
-		LSL(input, operand);
+		LSLREG(input, operand);
 		temp = input;
 
 
