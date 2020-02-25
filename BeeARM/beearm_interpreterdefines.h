@@ -42,19 +42,6 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
 #define RORBASE(x, offs) ((x >> offs) | (x << (32 - offs)))
 
 #define LSL(x, offs) \
-    x <<= offs;
-
-#define LSLS(x, offs, carry) \
-    if (offs > 0) \
-    { \
-	carry = TestBit(x, (32 - offs)); \
-    } \
-    else \
-    { \
-	carry = TestBit(arm->getcpsr(), 29); \
-    } \
-
-#define LSLREG(x, offs) \
     if (offs > 31) \
     { \
 	x = 0; \
@@ -64,7 +51,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
 	x <<= offs; \
     } \
 
-#define LSLREGS(x, offs, carry) \
+#define LSLS(x, offs, carry) \
     if (offs > 31) \
     { \
 	carry = (offs > 32) ? false : TestBit(x, 0); \
@@ -79,7 +66,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     } \
 
 #define LSR(x, offs) \
-    if (offs == 0) \
+    if (offs > 31) \
     { \
 	x = 0; \
     } \
@@ -89,7 +76,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     }
 
 #define LSRS(x, offs, carry) \
-    if (offs == 0) \
+    if (offs > 31) \
     { \
 	carry = TestBit(x, 31); \
     } \
@@ -99,7 +86,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     }
 
 #define ASR(x, offs) \
-    if (offs == 0) \
+    if (offs > 31) \
     { \
 	x = (((int32_t)x) >> 31); \
     } \
@@ -109,7 +96,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     }
 
 #define ASRS(x, offs, carry) \
-    if (offs == 0) \
+    if (offs > 31) \
     { \
 	carry = TestBit(x, 31); \
     } \
