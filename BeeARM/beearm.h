@@ -445,8 +445,6 @@ namespace beearm
       array<pipelinestage, 2> nextthumbinstr;
       #endif // BEEARM_ENABLE_THUMB
 
-      int clockcycles = 0;
-
       void flushpipeline()
       {
 	currentarminstr.ispipelinefill = true;
@@ -507,7 +505,6 @@ namespace beearm
 	    }
 
 	    cout << "CPSR: " << hex << (int)(getcpsr()) << endl;
-	    cout << "Cycles: " << dec << (int)(clockcycles) << endl;
 	}
 
       void setthumbmode(bool cond)
@@ -664,7 +661,6 @@ namespace beearm
       {
 	if (inter != NULL)
 	{
-	    clockcycles += 1;
 	    inter->update();
 	}	
       }
