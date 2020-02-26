@@ -639,7 +639,7 @@ namespace beearm
 		uint32_t addr = (srcreg + offsreg);
 		arm->clock(addr, DATA_N16);
 
-		uint16_t value = arm->readWord(addr);
+		uint32_t value = arm->readWord(addr);
 		arm->clock();
 
 		if (TestBit(value, 15))
