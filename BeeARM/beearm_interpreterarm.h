@@ -1045,10 +1045,35 @@ namespace beearm
 
     inline void arm12(BeeARM *arm)
     {
+	// TODO: Timings
 	uint32_t instr = arm->currentarminstr.armvalue;
-	cout << "ARM.12" << endl;
-	cout << hex << (int)(instr) << endl;
-	exit(1);
+	
+	uint8_t src = (instr & 0xF);
+	uint8_t dst = ((instr >> 12) & 0xF);
+	uint8_t base = ((instr >> 16) & 0xF);
+
+	bool isbyteorword = TestBit(instr, 22);
+
+	uint32_t baseaddr = arm->getreg(base);
+	uint32_t destvalue = 0;
+	uint32_t swapvalue = 0;
+
+	if (isbyteorword)
+	{
+	    destvalue = arm->readByte(baseaddr);
+	    swapvalue = (arm->getreg(src) & 0xFF);
+
+	    arm->writeByte(baseaddr, swapvalue);
+	    arm->setreg(dst, destvalue);
+	}
+	else
+	{
+	    destvalue = arm->readLong(baseaddr);
+	    swapvalue = arm->getreg(src);
+
+	    arm->writeLong(baseaddr, swapvalue);
+	    arm->setreg(dst, destvalue);
+	}
     }
 
     inline void arm13(BeeARM *arm)
