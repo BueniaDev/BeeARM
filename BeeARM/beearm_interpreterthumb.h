@@ -982,13 +982,8 @@ namespace beearm
 			    writeback = false;
 			}
 
-			if ((baseaddr & 0x3) != 0)
-			{
-			    cout << "Misaligned THUMB LDMIA address" << endl;
-			    exit(1);
-			}
+			uint32_t value = arm->readLong((baseaddr & ~3));
 
-			uint32_t value = arm->readLong(baseaddr);
 			arm->setreg(i, value);
 
 			baseaddr += 4;

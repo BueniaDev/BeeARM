@@ -898,9 +898,11 @@ namespace beearm
 	    cout << "Warning - PC used as base register" << endl;
 	}
 
+	uint32_t tempmode = (arm->getcpsr() & 0x1F);
+
 	if (psr)
 	{
-	    cout << "Setting USR mode..." << endl;
+	    arm->setmode(0x1F);
 	}
 
 	uint32_t baseaddr = arm->getreg(base);
@@ -1039,7 +1041,7 @@ namespace beearm
 
 	if (psr)
 	{
-	    cout << "Setting current mode..." << endl;
+	    arm->setmode(tempmode);
 	}
     }
 

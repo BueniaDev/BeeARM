@@ -487,6 +487,16 @@ namespace beearm
         armreg.setcpsr(val);
       }
 
+      uint32_t getmode()
+      {
+        return (armreg.getcpsr() & 0x1F);
+      }
+
+      void setmode(uint32_t val)
+      {
+	armreg.setmode(val);
+      }
+
       uint32_t getspsr()
       {
         return armreg.getspsr();
