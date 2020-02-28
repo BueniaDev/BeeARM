@@ -548,7 +548,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(vals64, 63), (vals64 == 0));
+		    arm->setnz((vals64 < 0), (vals64 == 0));
 		}
 	    }
 	    break;
@@ -569,7 +569,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnz(TestBit(vals64, 63), (vals64 == 0));
+		    arm->setnz((vals64 < 0), (vals64 == 0));
 		}
 	    }
 	    break;
