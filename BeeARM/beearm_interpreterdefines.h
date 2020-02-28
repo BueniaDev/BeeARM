@@ -153,7 +153,7 @@ inline bool overflowsub(uint32_t x, uint32_t y, uint32_t result)
     { \
 	carry = TestBit(x, 31); \
     } \
-    else \
+    else if (offs > 0) \
     { \
 	carry = TestBit(x, (offs - 1)); \
     }
