@@ -411,6 +411,7 @@ namespace beearm
 	    {
 		int immoffs = (instr & 0xFF);
 		int immshift = ((instr >> 8) & 0xF);
+		immshift <<= 1;
 
 		offs = RORBASE(immoffs, immshift);
 	    }
@@ -426,14 +427,15 @@ namespace beearm
 		else
 		{
 		    offs = arm->getreg(regoffs);
+		    offs &= mask;
 		}
+	    }
 
-		uint32_t temp = (isspsr) ? arm->getspsr() : arm->getcpsr();
-		temp &= ~mask;
-		temp |= offs;
+	    uint32_t temp = (isspsr) ? arm->getspsr() : arm->getcpsr();
+	    temp &= ~mask;
+	    temp |= offs;
 
 		(isspsr) ? arm->setspsr(temp) : arm->setcpsr(temp);
-	    }
 	}
 	else
 	{
