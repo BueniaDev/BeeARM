@@ -678,6 +678,13 @@ namespace beearm
 		uint32_t value = arm->readLong(baseaddr);
 		arm->clock();
 
+		if ((baseaddr & 0x3) != 0)
+		{
+		    uint8_t offs = ((baseaddr & 0x3) << 3);
+		    value = arm->readLong((baseaddr & ~3));
+		    value = RORBASE(value, offs);
+		}
+
 		if (dst == 15)
 		{
 		    arm->clock((arm->getreg(15) + 4), DATA_N32);
