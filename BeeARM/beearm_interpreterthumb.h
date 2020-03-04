@@ -247,7 +247,7 @@ namespace beearm
 	    case 0x5:
 	    {
 		uint32_t input = dstreg;
-		uint32_t operand = (srcreg & 0xFF);
+		uint32_t operand = srcreg;
 
 		int carry = (arm->getc() ? 1 : 0);
 		
@@ -261,7 +261,7 @@ namespace beearm
 	    case 0x6:
 	    {
 		uint32_t input = dstreg;
-		uint32_t operand = (srcreg & 0xFF);
+		uint32_t operand = srcreg;
 
 		int carry = (arm->getc() ? 0 : 1);
 		
@@ -362,7 +362,7 @@ namespace beearm
 	    break;
 	    case 0xF:
 	    {
-		temp = ~dstreg;
+		temp = ~srcreg;
 		arm->setnz(TestBit(temp, 31), (temp == 0));
 		arm->setreg(dst, temp);
 
