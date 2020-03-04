@@ -93,7 +93,6 @@ namespace beearm
 	    {
 		uint32_t temp = (srcreg + oper);
 		arm->setreg(dst, temp);
-		arm->setnz(TestBit(temp, 31), (temp == 0));
 		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(srcreg, oper), OVERFLOW_ADD(srcreg, oper, temp));
 	    }
 	    break;
@@ -211,12 +210,12 @@ namespace beearm
 		uint32_t input = dstreg;
 		uint32_t operand = (srcreg & 0xFF);
 
-		LSR(input, operand);
-		temp = input;
-
 		bool carry = false;
 
 		LSRS(input, operand, carry);
+
+		LSR(input, operand);
+		temp = input;
 
 		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
 
@@ -230,12 +229,12 @@ namespace beearm
 		uint32_t input = dstreg;
 		uint32_t operand = (srcreg & 0xFF);
 
-		ASR(input, operand);
-		temp = input;
-
 		bool carry = false;
 
 		ASRS(input, operand, carry);
+
+		ASR(input, operand);
+		temp = input;
 
 		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
 
@@ -532,7 +531,7 @@ namespace beearm
 	    case 0:
 	    {
 		uint32_t addr = (srcreg + offsreg);
-		arm->writeLong((addr & ~3), dstreg);
+		arm->writeLong(addr, dstreg);
 
 		arm->clock(arm->getreg(15), CODE_N16);
 		arm->clock(addr, DATA_N32);
@@ -639,7 +638,7 @@ namespace beearm
 		uint32_t addr = (srcreg + offsreg);
 		arm->clock(addr, DATA_N16);
 
-		uint32_t value = arm->readWord(addr);
+		uint32_t value = arm->readWord((addr & ~1));
 		arm->clock();
 
 		if (TestBit(value, 15))
@@ -766,6 +765,13 @@ namespace beearm
 	if (opcode)
 	{
 	    arm->clock(addr, DATA_N32);
+
+	    if ((addr & 0x3) != 0)
+	    {
+		cout << "Misaligned THUMB.11 LDR address" << endl;
+		exit(1);
+	    }
+
 	    uint32_t value = arm->readLong(addr);
 	    arm->clock();
 
@@ -847,7 +853,7 @@ namespace beearm
 
 	for (int i = 0; i < 8; i++)
 	{
-	    if (TestBit(reglist, i))
+	    if (TestBit((reglist >> i), 0))
 	    {
 		ncount += 1;
 	    }
@@ -861,6 +867,12 @@ namespace beearm
 	    {
 		if (TestBit(reglist, 0))
 		{
+		    if ((r13 & 0x3) != 0)
+		    {
+			cout << "Misaligned PUSH address" << endl;
+			exit(1);
+		    }
+
 		    uint32_t popvalue = arm->readLong(r13);
 		    arm->setreg(i, popvalue);
 		    r13 += 4;
@@ -878,6 +890,12 @@ namespace beearm
 	    {
 		arm->clock();
 		arm->clock(r13, DATA_N32);
+
+		if ((r13 & 0x3) != 0)
+		{
+		    cout << "Misaligned PUSH address" << endl;
+		    exit(1);
+		}
 
 		uint32_t newpc = arm->readLong(r13);
 		arm->setreg(15, (newpc & ~0x1));
@@ -900,6 +918,13 @@ namespace beearm
 	    if (pclrbit)
 	    {
 		r13 -= 4;
+
+		if ((r13 & 0x3) != 0)
+		{
+		    cout << "Misaligned PUSH address" << endl;
+		    exit(1);
+		}
+
 		arm->writeLong(r13, r14);
 		arm->setreg(14, r14);
 
@@ -912,6 +937,13 @@ namespace beearm
 		{
 		    r13 -= 4;
 		    uint32_t pushvalue = arm->getreg(i);
+
+		    if ((r13 & 0x3) != 0)
+		    {
+			cout << "Misaligned PUSH address" << endl;
+			exit(1);
+		    }
+
 		    arm->writeLong(r13, pushvalue);
 
 		    if ((ncount - 1) != 0)
@@ -961,7 +993,7 @@ namespace beearm
 
 	for (int i = 0; i < 8; i++)
 	{
-	    if (TestBit(reglist, i))
+	    if (TestBit((reglist >> i), 0))
 	    {
 		ncount += 1;
 	    }
@@ -1054,7 +1086,7 @@ namespace beearm
 	    }
 	    else
 	    {
-		arm->writeLong(baseaddr, arm->getreg(15));
+		arm->writeLong((baseaddr & ~3), arm->getreg(15));
 		baseaddr += 0x40;
 		arm->setreg(base, baseaddr);
 	    }
