@@ -685,11 +685,6 @@ namespace beearm
 
       void swiexception()
       {
-	  if ((currentarminstr.ispipelinefill == true) || (currentthumbinstr.ispipelinefill == true))
-	  {
-	      return;
-	  }
-
 	  if (instmode == thumbmode)
 	  {
 	      armreg.r14svc = (armreg.getreg(15) - 4);
