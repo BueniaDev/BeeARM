@@ -50,6 +50,7 @@ namespace beearm
       }
       else if (getcond(cond))
       {
+	isflushed = false;
         // cout << "Exectuing ARM instruction..." << endl;
         executearminstr(currentarminstr.armvalue);
       }
@@ -69,6 +70,7 @@ namespace beearm
       }
       else
       {
+	isflushed = false;
         // cout << "Exectuing THUMB instruction..." << endl;
         executethumbinstr(currentthumbinstr.thumbvalue);
       }

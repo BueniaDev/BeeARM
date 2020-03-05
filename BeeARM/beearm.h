@@ -445,8 +445,11 @@ namespace beearm
       array<pipelinestage, 2> nextthumbinstr;
       #endif // BEEARM_ENABLE_THUMB
 
+      bool isflushed = false;
+
       void flushpipeline()
       {
+	isflushed = true;
 	currentarminstr.ispipelinefill = true;
 	currentarminstr.armvalue = 0;
 
@@ -707,11 +710,6 @@ namespace beearm
 
       void irqexception()
       {
-	  if ((currentarminstr.ispipelinefill == true) || (currentthumbinstr.ispipelinefill == true))
-	  {
-	      return;
-	  }
-
 	  if (instmode == thumbmode)
 	  {
 	      armreg.r14irq = (armreg.getreg(15));
