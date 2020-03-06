@@ -66,7 +66,7 @@ namespace beearm
       virtual void writeLong(uint32_t addr, uint32_t val) = 0;
       virtual int clockcycle(uint32_t val, int flags) = 0;
       virtual void update() = 0;
-      virtual void softwareinterrupt(uint8_t val) = 0;
+      virtual void softwareinterrupt(uint32_t val) = 0;
   };
 
   class BeeARM
@@ -678,7 +678,7 @@ namespace beearm
 	}	
       }
 
-      void softwareinterrupt(uint8_t val)
+      void softwareinterrupt(uint32_t val)
       {
 	if (inter != NULL)
 	{
@@ -710,6 +710,11 @@ namespace beearm
 
       void irqexception()
       {
+	  if (isflushed)
+	  {
+	      return;
+	  }
+
 	  if (instmode == thumbmode)
 	  {
 	      armreg.r14irq = (armreg.getreg(15));

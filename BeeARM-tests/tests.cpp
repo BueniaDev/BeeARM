@@ -53,7 +53,7 @@ class TestInterface : public BeeARMInterface
 	return;
     }
 
-    void softwareinterrupt(uint8_t val)
+    void softwareinterrupt(uint32_t val)
     {
 	return;
     }
