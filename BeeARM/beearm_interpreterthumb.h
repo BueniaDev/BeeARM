@@ -212,9 +212,9 @@ namespace beearm
 
 		bool carry = false;
 
-		LSRS(input, operand, carry);
+		LSRREGS(input, operand, carry);
 
-		LSR(input, operand);
+		LSRREG(input, operand);
 		temp = input;
 
 		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
@@ -231,9 +231,9 @@ namespace beearm
 
 		bool carry = false;
 
-		ASRS(input, operand, carry);
+		ASRREGS(input, operand, carry);
 
-		ASR(input, operand);
+		ASRREG(input, operand);
 		temp = input;
 
 		arm->setnzc(TestBit(temp, 31), (temp == 0), carry);
