@@ -251,7 +251,7 @@ namespace beearm
 		int carry = (arm->getc() ? 1 : 0);
 		
 		temp = (input + operand + carry);
-		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(input, operand), OVERFLOW_ADD(input, operand, temp));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_ADD(input, (operand + carry)), OVERFLOW_ADD(input, operand, temp));
 
 		arm->setreg(dst, temp);
 		arm->clock(arm->getreg(15), CODE_S16);
@@ -265,7 +265,7 @@ namespace beearm
 		int carry = (arm->getc() ? 0 : 1);
 		
 		temp = (input - operand - carry);
-		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(input, operand), OVERFLOW_SUB(input, operand, temp));
+		arm->setnzcv(TestBit(temp, 31), (temp == 0), CARRY_SUB(input, (operand - carry)), OVERFLOW_SUB(input, operand, temp));
 
 		arm->setreg(dst, temp);
 		arm->clock(arm->getreg(15), CODE_S16);

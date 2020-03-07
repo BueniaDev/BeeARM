@@ -261,7 +261,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(srcreg, (offs + carry)), OVERFLOW_ADD(srcreg, (offs + carry), destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(srcreg, (offs + carry)), OVERFLOW_ADD(srcreg, offs, destval));
 		}
 	    }
 	    break;
@@ -272,7 +272,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(srcreg, (offs - carry)), OVERFLOW_SUB(srcreg, (offs - carry), destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(srcreg, (offs - carry)), OVERFLOW_SUB(srcreg, offs, destval));
 		}
 	    }
 	    break;
@@ -283,7 +283,7 @@ namespace beearm
 
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB((offs - carry), srcreg), OVERFLOW_SUB((offs - carry), srcreg, destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB((offs - carry), srcreg), OVERFLOW_SUB(offs, srcreg, destval));
 		}
 	    }
 	    break;
