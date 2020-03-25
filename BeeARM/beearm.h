@@ -686,7 +686,7 @@ namespace beearm
 	}
       }
 
-      void swiexception()
+      void swiexception(uint32_t offset)
       {
 	  if (instmode == thumbmode)
 	  {
@@ -704,11 +704,16 @@ namespace beearm
 	  temp = BitReset(temp, 5);
 	  setcpsr(temp);
 	  setthumbmode(false);
-	  armreg.setreg(15, 0x8);
+	  armreg.setreg(15, (offset + 0x8));
 	  flushpipeline();
       }
 
-      void irqexception()
+      void swiexception()
+      {
+          swiexception(0);
+      }
+
+      void irqexception(uint32_t offset)
       {
 	  if (isflushed)
 	  {
@@ -731,8 +736,13 @@ namespace beearm
 	  temp = BitReset(temp, 5);
 	  setcpsr(temp);
 	  setthumbmode(false);
-	  armreg.setreg(15, 0x18);
+	  armreg.setreg(15, (offset + 0x18));
 	  flushpipeline();
+      }
+
+      void irqexception()
+      {
+          irqexception(0);
       }
   };
 };
