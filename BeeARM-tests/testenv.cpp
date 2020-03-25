@@ -79,6 +79,11 @@ class TestInterface : public BeeARMInterface
     {
 	return;
     }
+
+    int getversion()
+    {
+	return 4;
+    }
 };
 
 TestInterface::TestInterface()

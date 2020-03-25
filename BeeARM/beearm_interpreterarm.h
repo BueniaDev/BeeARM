@@ -45,6 +45,16 @@ namespace beearm
 	    offs |= 0xFC000000;
 	}
 
+	if (((instr >> 28) == 0xF) && (arm->getversion() == 5)) // This instruction is exclusive to ARMv5T
+	{
+	    int hoffs = (TestBit(instr, 24) << 1);
+	    arm->setreg(14, (arm->getreg(15) - 8));
+	    arm->setreg(15, (arm->getreg(15) - 4 + offs + hoffs));
+	    arm->setthumbmode(true);
+	    arm->flushpipeline();
+	    return;
+	}
+
 	if (TestBit(instr, 24))
 	{
 	    arm->setreg(14, (arm->getreg(15) - 8));

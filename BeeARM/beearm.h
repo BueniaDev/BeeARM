@@ -67,6 +67,7 @@ namespace beearm
       virtual int clockcycle(uint32_t val, int flags) = 0;
       virtual void update() = 0;
       virtual void softwareinterrupt(uint32_t val) = 0;
+      virtual int getversion() = 0;
   };
 
   class BeeARM
@@ -684,6 +685,11 @@ namespace beearm
 	{
 	    inter->softwareinterrupt(val);
 	}
+      }
+
+      int getversion()
+      {
+	  return (inter != NULL) ? inter->getversion() : 0;
       }
 
       void swiexception(uint32_t offset)
