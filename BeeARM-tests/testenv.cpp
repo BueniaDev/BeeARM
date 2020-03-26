@@ -84,6 +84,16 @@ class TestInterface : public BeeARMInterface
     {
 	return 4;
     }
+
+    uint32_t readcoprocessor(uint16_t id)
+    {
+	return 0;
+    }
+
+    void writecoprocessor(uint16_t id, uint32_t val)
+    {
+	return;
+    }
 };
 
 TestInterface::TestInterface()

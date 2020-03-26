@@ -1119,8 +1119,23 @@ namespace beearm
 
     inline void arm16(BeeARM *arm)
     {
-	cout << "ARM.16-MRC/MCR" << endl;
-	exit(1);
+	uint32_t instr = arm->currentarminstr.armvalue;
+	int cpnum = ((instr >> 8) & 0xF);
+	int cpreg = ((instr >> 16) & 0xF);
+	int cpoper = (instr & 0xF);
+	int cpinfo = ((instr >> 5) & 0x7);
+	int dst = ((instr >> 12) & 0xF);
+
+	uint16_t cpval = ((cpnum << 12) | (cpreg << 8) | (cpoper << 4) | cpinfo);
+
+	if (TestBit(instr, 20))
+	{
+	    arm->setreg(dst, arm->readcoprocessor(cpval));
+	}
+	else
+	{
+	    arm->writecoprocessor(cpval, arm->getreg(dst));
+	}
     }
 
     inline void arm17(BeeARM *arm)

@@ -68,6 +68,8 @@ namespace beearm
       virtual void update() = 0;
       virtual void softwareinterrupt(uint32_t val) = 0;
       virtual int getversion() = 0;
+      virtual uint32_t readcoprocessor(uint16_t id) = 0;
+      virtual void writecoprocessor(uint16_t id, uint32_t val) = 0;
   };
 
   class BeeARM
@@ -690,6 +692,19 @@ namespace beearm
       int getversion()
       {
 	  return (inter != NULL) ? inter->getversion() : 0;
+      }
+
+      uint32_t readcoprocessor(uint16_t id)
+      {
+	  return (inter != NULL) ? inter->readcoprocessor(id) : 0;
+      }
+
+      void writecoprocessor(uint16_t id, uint32_t val)
+      {
+	  if (inter != NULL)
+	  {
+	      inter->writecoprocessor(id, val);
+	  }
       }
 
       void swiexception(uint32_t offset)
