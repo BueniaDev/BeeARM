@@ -26,10 +26,15 @@ namespace beearm
 	    arm->clock(arm->getreg(15), CODE_S32);
 	    arm->clock((arm->getreg(15) + 4), CODE_S32);
 	}
-	else
+	else if ((arm->getversion() == 5) && (opcode == 3))
 	{
-	    cout << "ARMv5 exclusive opcode" << endl;
-	    exit(1);
+	    arm->setreg(14, (arm->getreg(15) - 8));
+	    arm->clock(arm->getreg(15), CODE_N32);
+	    arm->setreg(15, (arm->getreg(reg) & ~1));
+	    arm->setthumbmode(TestBit(setreg, 0));
+	    arm->flushpipeline();
+	    arm->clock(arm->getreg(15), CODE_S32);
+	    arm->clock((arm->getreg(15) + 4), CODE_S32);
 	}
     }
 
