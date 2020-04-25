@@ -898,6 +898,12 @@ namespace beearm
 		}
 
 		uint32_t newpc = arm->readLong(r13);
+
+		if ((arm->getversion() == 5) && !TestBit(newpc, 0))
+		{
+		    arm->setthumbmode(false);
+		}
+
 		arm->setreg(15, (newpc & ~0x1));
 		r13 += 4;
 		arm->flushpipeline();
