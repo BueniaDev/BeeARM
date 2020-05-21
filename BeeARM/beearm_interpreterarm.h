@@ -272,33 +272,36 @@ namespace beearm
 	    case 0x5:
 	    {
 		int carry = arm->getc() ? 1 : 0;
-		destval = (srcreg + offs + carry);
-
+		uint64_t carryval = ((uint64_t)(offs) + carry);
+		destval = (uint32_t)(srcreg + carryval);
+		
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(srcreg, (offs + carry)), OVERFLOW_ADD(srcreg, offs, destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_ADD(srcreg, carryval), OVERFLOW_ADD(srcreg, offs, destval));
 		}
 	    }
 	    break;
 	    case 0x6:
 	    {
-		int carry = arm->getc() ? 0 : 1;
-		destval = (srcreg - offs - carry);
+		int carry = arm->getc() ? 1 : 0;
+		uint64_t carryval = ((uint64_t)(offs) - carry + 1);
+		destval = (uint32_t)(srcreg - carryval);
 
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(srcreg, (offs - carry)), OVERFLOW_SUB(srcreg, offs, destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(srcreg, carryval), OVERFLOW_SUB(srcreg, offs, destval));
 		}
 	    }
 	    break;
 	    case 0x7:
 	    {
-		int carry = arm->getc() ? 0 : 1;
-		destval = (offs - srcreg - carry);
+		int carry = arm->getc() ? 1 : 0;
+		uint64_t carryval = ((uint64_t)(srcreg) - carry + 1);
+		destval = (uint32_t)(offs - carryval);
 
 		if (setcond)
 		{
-		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB((offs - carry), srcreg), OVERFLOW_SUB(offs, srcreg, destval));
+		    arm->setnzcv(TestBit(destval, 31), (destval == 0), CARRY_SUB(offs, carryval), OVERFLOW_SUB(offs, srcreg, destval));
 		}
 	    }
 	    break;

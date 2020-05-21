@@ -9,17 +9,13 @@
 
 #define OVERFLOW_SUB(x, y, res) overflowsub(x, y, res)
 
-inline bool carryadd(uint32_t x, uint32_t y)
+inline bool carryadd(uint64_t op1, uint64_t op2)
 {
-    uint64_t op1 = (uint64_t)(x);
-    uint64_t op2 = (uint64_t)(y);
     return ((op1 + op2) > 0xFFFFFFFF);
 }
 
-inline bool carrysub(uint32_t x, uint32_t y)
+inline bool carrysub(uint64_t op1, uint64_t op2)
 {
-    uint64_t op1 = (uint64_t)(x);
-    uint64_t op2 = (uint64_t)(y);
     return (op2 <= op1);
 }
 
