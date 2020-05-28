@@ -383,6 +383,7 @@ namespace beearm
 		uint32_t temp = arm->getspsr();
 		arm->setthumbmode(TestBit(temp, 5));
 		arm->setcpsr(temp);
+		arm->exceptionreturncallback();
 		return;
 	    }
 

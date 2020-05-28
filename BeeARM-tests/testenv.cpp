@@ -94,6 +94,11 @@ class TestInterface : public BeeARMInterface
     {
 	return;
     }
+    
+    void exceptionreturncallback()
+    {
+        return;
+    }
 };
 
 TestInterface::TestInterface()

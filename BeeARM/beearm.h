@@ -70,6 +70,7 @@ namespace beearm
       virtual int getversion() = 0;
       virtual uint32_t readcoprocessor(uint16_t id) = 0;
       virtual void writecoprocessor(uint16_t id, uint32_t val) = 0;
+      virtual void exceptionreturncallback() = 0;
   };
 
   class BeeARM
@@ -764,6 +765,14 @@ namespace beearm
       void irqexception()
       {
           irqexception(0);
+      }
+      
+      void exceptionreturncallback()
+      {
+          if (inter != NULL)
+          {
+              inter->exceptionreturncallback();
+          }
       }
   };
 };
