@@ -397,8 +397,6 @@ namespace beearm
 	uint32_t dstreg = arm->getreg(dst);
 	uint32_t srcreg = arm->getreg(src);
 
-	uint32_t temp = 0;
-
 	if ((opcode == 3) && (dstmsb))
 	{
 	    cout << "Error - R15 used for THUMB BX" << endl;

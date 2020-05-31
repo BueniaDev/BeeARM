@@ -101,7 +101,6 @@ namespace beearm
 
 	uint32_t offs = 0;
 	uint32_t destval = arm->getreg(dest);
-	bool setdest = true;
 
 	bool carryout = arm->getc();
 
