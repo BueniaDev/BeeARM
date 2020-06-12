@@ -45,7 +45,8 @@ class TestInterface : public BeeARMInterface
 
     uint16_t readWord(uint32_t addr)
     {
-      return ((readByte(addr + 1) << 8) | (readByte(addr)));
+      return *(uint16_t*)&memory[addr];
+      // return ((readByte(addr + 1) << 8) | (readByte(addr)));
     }
 
     void writeWord(uint32_t addr, uint16_t val)
@@ -56,7 +57,8 @@ class TestInterface : public BeeARMInterface
 
     uint32_t readLong(uint32_t addr)
     {
-      return ((readWord(addr + 2) << 16) | (readWord(addr)));
+      return *(uint32_t*)&memory[addr];
+      // return ((readWord(addr + 2) << 16) | (readWord(addr)));
     }
 
     void writeLong(uint32_t addr, uint32_t val)
@@ -118,9 +120,7 @@ void init(string filename)
 {
     inter.loadfile(filename);
     arm.setinterface(&inter);
-    arm.init(0x2692, 0x3F);
-    arm.armreg.r13 = 0x3007F00;
-    arm.armreg.r13irq = 0x3007FA0;
+    arm.init(0x0, 0x5F);
 }
 
 int main(int argc, char* argv[])
@@ -133,11 +133,9 @@ int main(int argc, char* argv[])
 
     init(argv[1]);
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 10000000; i++)
     {
 	arm.executenextinstr();
-	arm.printregs();
-	cout << endl;
     }
 
     cout << "Program execution finished." << endl;

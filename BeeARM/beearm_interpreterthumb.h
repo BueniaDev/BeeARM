@@ -1194,6 +1194,12 @@ namespace beearm
 	    arm->flushpipeline();	
 	}
     }
+    
+    inline void thumb20(BeeARM *arm)
+    {
+	cout << "THUMB.20-Undefined Instruction" << endl;
+	exit(1);
+    }
 };
 
 
