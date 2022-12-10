@@ -15,6 +15,16 @@ Simple debug output
 
 And more to come!
 
+## Supported architectures
+
+* ARMv3G
+* ARMv3M
+* ARMv4(xM)
+* ARMv4T(xM)
+* ARMv5(xM/E) (WIP)
+* ARMv5T(xM) (WIP)
+* ARMv5TE(xP/J) (WIP)
+
 # Building Instructions
 
 The BeeARM library (and the testing framework, if desired) does not have any dependencies and can be compiled with MinGW on Windows, and (presumably) both GCC and Clang on Linux, as well as (presumably) AppleClang on OSX.
