@@ -77,6 +77,7 @@ BeeARM7::beeARM7mapping BeeARM7::decodeARMInstr(uint32_t instr)
     for (auto it = arm7funcmappings.rbegin(); it != arm7funcmappings.rend(); it++)
     {
 	auto mapping = *it;
+
 	if ((instr & mapping.mask) == mapping.value)
 	{
 	    return mapping;
@@ -202,6 +203,70 @@ void BeeARM7::setArchitecture(BeeARM7Architecture arch)
 	    version_num = 4;
 	}
 	break;
+	case v5:
+	{
+	    is_thumb_enabled = false;
+	    is_mult_long_enabled = true;
+	    is_bx_enabled = false;
+	    version_num = 5;
+	}
+	break;
+	case v5T:
+	{
+	    is_thumb_enabled = true;
+	    is_mult_long_enabled = true;
+	    is_bx_enabled = true;
+	    version_num = 5;
+	}
+	break;
+	case v5xM:
+	{
+	    is_thumb_enabled = false;
+	    is_mult_long_enabled = false;
+	    is_bx_enabled = false;
+	    version_num = 5;
+	}
+	break;
+	case v5TxM:
+	{
+	    is_thumb_enabled = true;
+	    is_mult_long_enabled = false;
+	    is_bx_enabled = true;
+	    version_num = 5;
+	}
+	break;
+	case v5E:
+	{
+	    is_thumb_enabled = false;
+	    is_mult_long_enabled = true;
+	    is_bx_enabled = false;
+	    version_num = 5;
+	}
+	break;
+	case v5TE:
+	{
+	    is_thumb_enabled = true;
+	    is_mult_long_enabled = true;
+	    is_bx_enabled = true;
+	    version_num = 5;
+	}
+	break;
+	case v5TExP:
+	{
+	    is_thumb_enabled = true;
+	    is_mult_long_enabled = true;
+	    is_bx_enabled = true;
+	    version_num = 5;
+	}
+	break;
+	case v5TEJ:
+	{
+	    is_thumb_enabled = true;
+	    is_mult_long_enabled = true;
+	    is_bx_enabled = true;
+	    version_num = 5;
+	}
+	break;
     }
 }
 
@@ -233,6 +298,30 @@ void BeeARM7::shutdown()
 void BeeARM7::setInterface(BeeARMInterface *cb)
 {
     inter = cb;
+}
+
+void BeeARM7::setCoprocessor(int num, BeeARM7Coprocessor *cb)
+{
+    if ((num < 0) || (num > 15))
+    {
+	throw out_of_range("Invalid coprocessor number");
+    }
+
+    if (cb == NULL)
+    {
+	cout << "Pointer is NULL" << endl;
+	throw runtime_error("BeeARM error");
+    }
+
+    if (!coprocs.at(num))
+    {
+	coprocs.at(num) = unique_ptr<BeeARM7Coprocessor>(cb);
+    }
+
+    if (coprocs.at(num))
+    {
+	coprocs.at(num)->reset();
+    }
 }
 
 uint32_t BeeARM7::getReg(int reg)
@@ -452,6 +541,113 @@ void BeeARM7::setReg(int reg, uint32_t data)
     }
 }
 
+void BeeARM7::setReg(BeeARM7Mode mode, int reg, uint32_t data)
+{
+    if ((reg < 0) || (reg > 15))
+    {
+	throw out_of_range("Invalid register number");
+    }
+
+    switch (reg)
+    {
+	case 0: arm_regs.r0 = data; break;
+	case 1: arm_regs.r1 = data; break;
+	case 2: arm_regs.r2 = data; break;
+	case 3: arm_regs.r3 = data; break;
+	case 4: arm_regs.r4 = data; break;
+	case 5: arm_regs.r5 = data; break;
+	case 6: arm_regs.r6 = data; break;
+	case 7: arm_regs.r7 = data; break;
+	case 8:
+	{
+	    if (mode == BeeARM7Mode::Fiq)
+	    {
+		arm_regs.r8_fiq = data;
+	    }
+	    else
+	    {
+		arm_regs.r8 = data;
+	    }
+	}
+	break;
+	case 9:
+	{
+	    if (mode == BeeARM7Mode::Fiq)
+	    {
+		arm_regs.r9_fiq = data;
+	    }
+	    else
+	    {
+		arm_regs.r9 = data;
+	    }
+	}
+	break;
+	case 10:
+	{
+	    if (mode == BeeARM7Mode::Fiq)
+	    {
+		arm_regs.r10_fiq = data;
+	    }
+	    else
+	    {
+		arm_regs.r10 = data;
+	    }
+	}
+	break;
+	case 11:
+	{
+	    if (mode == BeeARM7Mode::Fiq)
+	    {
+		arm_regs.r11_fiq = data;
+	    }
+	    else
+	    {
+		arm_regs.r11 = data;
+	    }
+	}
+	break;
+	case 12:
+	{
+	    if (mode == BeeARM7Mode::Fiq)
+	    {
+		arm_regs.r12_fiq = data;
+	    }
+	    else
+	    {
+		arm_regs.r12 = data;
+	    }
+	}
+	break;
+	case 13:
+	{
+	    switch (mode)
+	    {
+		case BeeARM7Mode::Fiq: arm_regs.r13_fiq = data; break;
+		case BeeARM7Mode::Irq: arm_regs.r13_irq = data; break;
+		case BeeARM7Mode::Svc: arm_regs.r13_svc = data; break;
+		case BeeARM7Mode::Abt: arm_regs.r13_abt = data; break;
+		case BeeARM7Mode::Und: arm_regs.r13_und = data; break;
+		default: arm_regs.r13 = data; break;
+	    }
+	}
+	break;
+	case 14:
+	{
+	    switch (mode)
+	    {
+		case BeeARM7Mode::Fiq: arm_regs.r14_fiq = data; break;
+		case BeeARM7Mode::Irq: arm_regs.r14_irq = data; break;
+		case BeeARM7Mode::Svc: arm_regs.r14_svc = data; break;
+		case BeeARM7Mode::Abt: arm_regs.r14_abt = data; break;
+		case BeeARM7Mode::Und: arm_regs.r14_und = data; break;
+		default: arm_regs.r14 = data; break;
+	    }
+	}
+	break;
+	case 15: arm_regs.r15 = data; break;
+    }
+}
+
 uint32_t BeeARM7::getCPSR()
 {
     return arm_regs.cpsr;
@@ -545,61 +741,66 @@ void BeeARM7::fetch()
 
 void BeeARM7::runInstruction()
 {
-    uint32_t mask = isThumb() ? 1 : 3;
-    int size = isThumb() ? BeeARMFlags::Word : BeeARMFlags::Long;
-
-    if (pipeline.is_reload)
+    try
     {
-	pipeline.is_reload = false;
-	arm_regs.r15 &= ~mask;
-	pipeline.fetch.addr = (getReg(15) & ~mask);
-	pipeline.fetch.instr = readPrefetch(size, pipeline.fetch.addr);
-	fetch();
-    }
+	uint32_t mask = isThumb() ? 1 : 3;
+	int size = isThumb() ? BeeARMFlags::Word : BeeARMFlags::Long;
 
-    fetch();
-
-    if (is_interrupt && !testbit(arm_regs.cpsr, 7))
-    {
-	throwException(Irq, 0x18);
-
-	if (pipeline.execute.is_thumb)
+	if (pipeline.is_reload)
 	{
-	    setReg(14, (getReg(14) + 2));
+	    pipeline.is_reload = false;
+	    arm_regs.r15 &= ~mask;
+	    pipeline.fetch.addr = (getReg(15) & ~mask);
+	    pipeline.fetch.instr = readPrefetch(size, pipeline.fetch.addr);
+	    fetch();
 	}
 
-	is_interrupt = false;
-	return;
-    }
+	fetch();
 
-    uint32_t opcode = pipeline.execute.instr;
-
-    if (!pipeline.execute.is_thumb)
-    {
-	int cond = ((opcode >> 28) & 0xF);
-
-	// Don't execute an instruction if its condition is false
-	if (!isCondition(cond))
+	if (is_interrupt && !testbit(arm_regs.cpsr, 7))
 	{
+	    throwException(Irq, 0x18);
+
+	    if (pipeline.execute.is_thumb)
+	    {
+		setReg(14, (getReg(14) + 2));
+	    }
+
+	    is_interrupt = false;
+
 	    return;
 	}
 
-	uint16_t instr = (((opcode >> 16) & 0xFF0) | ((opcode >> 4) & 0xF));
-	arm_func_table.at(instr).function(opcode);
+	uint32_t opcode = pipeline.execute.instr;
+
+	if (!pipeline.execute.is_thumb)
+	{
+	    int cond = ((opcode >> 28) & 0xF);
+
+	    // Don't execute an instruction if its condition is false
+	    if (!isCondition(cond))
+	    {
+		return;
+	    }
+
+	    uint16_t instr = (((opcode >> 16) & 0xFF0) | ((opcode >> 4) & 0xF));
+	    arm_func_table.at(instr).function(opcode);
+	}
+	else
+	{
+	    uint16_t instr = (uint16_t(opcode) >> 6);
+	    thumb_func_table.at(instr).function(opcode);
+	}
     }
-    else
+    catch (exception &ex)
     {
-	uint16_t instr = (uint16_t(opcode) >> 6);
-	thumb_func_table.at(instr).function(opcode);
+	cout << ex.what() << endl;
+	debugoutput();
+	throw runtime_error("BeeARM error");
     }
 }
 
-void BeeARM7::fireInterrupt()
+void BeeARM7::fireInterrupt(bool line)
 {
-    if (isIRQDisable())
-    {
-	return;
-    }
-
-    is_interrupt = true;
+    is_interrupt = line;
 }

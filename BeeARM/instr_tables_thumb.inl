@@ -2,9 +2,8 @@
 
 void thumb_unknown(uint16_t instr)
 {
-    cout << "Unrecognized THUMB instruction of " << hex << int(instr) << endl;
-    debugoutput();
-    exit(1);
+    throw BeeARM7ThumbUnknownInstruction(getVersion(), instr);
+    return;
 }
 
 vector<beeTHUMBmapping> thumbfuncmappings =
@@ -26,6 +25,8 @@ vector<beeTHUMBmapping> thumbfuncmappings =
     thumbinstruction(0xF000, 0xC000, load_store_multiple),
     thumbinstruction(0xF000, 0xD000, cond_branch),
     thumbinstruction(0xFF00, 0xDF00, swi),
+    thumbinstruction(0xFF00, 0xBE00, unknown), // BKPT (ARMv5 and up)
     thumbinstruction(0xF800, 0xE000, branch),
+    thumbinstruction(0xF800, 0xE800, long_branch),
     thumbinstruction(0xF000, 0xF000, long_branch)
 };

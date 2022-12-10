@@ -1,5 +1,7 @@
 void arm7_branch(uint32_t instr)
 {
+    int cond = ((instr >> 28) & 0xF);
+
     uint32_t offs = ((instr & 0xFFFFFF) << 2);
 
     if (testbit(instr, 23))
@@ -7,16 +9,35 @@ void arm7_branch(uint32_t instr)
 	offs |= 0xFC000000;
     }
 
-    bool is_link = testbit(instr, 24);
-
-    if (is_link)
+    if (cond == 0xF)
     {
-	setReg(14, (getReg(15) - 4));
-    }
+	if (isVersionLessThanOrEqual(4))
+	{
+	    arm7_unknown(instr);
+	    return;
+	}
 
-    uint32_t r15 = getReg(15);
-    setReg(15, (r15 + offs));
-    pipeline.is_reload = true;
+	offs += (testbit(instr, 24) << 1);
+
+	setReg(14, (getReg(15) - 4));
+	uint32_t r15 = getReg(15);
+	setReg(15, (r15 + offs));
+	setThumb(true);
+	pipeline.is_reload = true;
+    }
+    else
+    {
+	bool is_link = testbit(instr, 24);
+
+	if (is_link)
+	{
+	    setReg(14, (getReg(15) - 4));
+	}
+
+	uint32_t r15 = getReg(15);
+	setReg(15, (r15 + offs));
+	pipeline.is_reload = true;
+    }
 }
 
 void arm7_bx(uint32_t instr)
@@ -24,7 +45,7 @@ void arm7_bx(uint32_t instr)
     // BX is not available on ARMv3 or non-T versions of ARMv4
     if (!isBXSupported())
     {
-	throw new BeeARM7BXUnsupported();
+	throw BeeARM7BXUnsupported();
 	return;
     }
 
@@ -41,10 +62,26 @@ void arm7_bx(uint32_t instr)
 	    pipeline.is_reload = true;
 	}
 	break;
+	case 0x3:
+	{
+	    // BLX reg is not supported on ARM v4 or lower
+	    if (isVersionLessThan(5))
+	    {
+		arm7_unknown(instr);
+		return;
+	    }
+
+	    setReg(14, (getReg(15) - 4));
+	    uint32_t addr = getReg(reg);
+	    setReg(15, resetbit(addr, 0));
+	    setThumb(testbit(addr, 0));
+	    pipeline.is_reload = true;
+	}
+	break;
 	default:
 	{
-	    cout << "Unimplemented BX opcode of " << dec << int(opcode) << endl;
-	    exit(0);
+	    cout << "Unrecognized BX opcode of " << dec << int(opcode) << endl;
+	    arm7_unknown(instr);
 	}
 	break;
     }
@@ -266,8 +303,7 @@ void arm7_data_proc(uint32_t instr)
 	break;
 	default:
 	{
-	    cout << "Unrecognized ARM7 ALU opcode of " << hex << int(opcode) << endl;
-	    exit(0);
+	    arm7_unknown(instr);
 	}
 	break;
     }
@@ -398,7 +434,7 @@ void arm7_mul_mla_long(uint32_t instr)
 {
     if (!isMultLongSupported())
     {
-	throw new BeeARM7MultLongUnsupported();
+	throw BeeARM7MultLongUnsupported();
 	return;
     }
 
@@ -551,8 +587,7 @@ void arm7_half_transfer_reg(uint32_t instr)
 		}
 		else
 		{
-		    cout << "ARMv5 LDRD opcode" << endl;
-		    exit(0);
+		    arm7_unknown(instr);
 		}
 	    }
 	}
@@ -583,8 +618,7 @@ void arm7_half_transfer_reg(uint32_t instr)
 		}
 		else
 		{
-		    cout << "ARMv5 STRD opcode" << endl;
-		    exit(0);
+		    arm7_unknown(instr);
 		}
 	    }
 	}
@@ -695,8 +729,7 @@ void arm7_half_transfer_imm(uint32_t instr)
 		}
 		else
 		{
-		    cout << "ARMv5 LDRD opcode" << endl;
-		    exit(0);
+		    arm7_unknown(instr);
 		}
 	    }
 	}
@@ -727,8 +760,7 @@ void arm7_half_transfer_imm(uint32_t instr)
 		}
 		else
 		{
-		    cout << "ARMv5 STRD opcode" << endl;
-		    exit(0);
+		    arm7_unknown(instr);
 		}
 	    }
 	}
@@ -857,6 +889,12 @@ void arm7_single_transfer(uint32_t instr)
 
     if (is_load && (dst_reg == 15))
     {
+	if (isVersionGreaterThanOrEqual(5))
+	{
+	    cout << "Possible switch to THUMB mode..." << endl;
+	    exit(0);
+	}
+
 	pipeline.is_reload = true;
     }
 }
@@ -990,6 +1028,43 @@ void arm7_block_transfer(uint32_t instr)
     if (is_switch_mode)
     {
 	setMode(prev_mode);
+    }
+}
+
+void arm7_coproc_reg_transfer(uint32_t instr)
+{
+    int cond = (instr >> 28);
+
+    if (cond == 0xF)
+    {
+	cout << "MRC2/MCR2 opcode" << endl;
+	exit(0);
+    }
+
+    bool is_load = testbit(instr, 20);
+    int coproc_op = ((instr >> 21) & 0x7);
+    int coproc_number = ((instr >> 8) & 0xF);
+    int coproc_reg = ((instr >> 16) & 0xF);
+    int arm_reg = ((instr >> 12) & 0xF);
+    int coproc_info = ((instr >> 5) & 0x7);
+    int coproc_oper = (instr & 0xF);
+
+    if (coprocs.at(coproc_number) == NULL)
+    {
+	cout << "Invalid coprocessor" << endl;
+	exit(0);
+    }
+
+    uint32_t coproc_id = ((coproc_op << 12) | (coproc_reg << 8) | (coproc_oper << 4) | coproc_info);
+
+    if (is_load)
+    {
+	setReg(arm_reg, coprocs.at(coproc_number)->readReg(coproc_id));
+    }
+    else
+    {
+	uint32_t data = getReg(arm_reg);
+	coprocs.at(coproc_number)->writeReg(coproc_id, data);
     }
 }
 

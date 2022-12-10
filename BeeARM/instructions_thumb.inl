@@ -332,6 +332,14 @@ void thumb_hi_reg(uint16_t instr)
     src_reg |= (msb_s << 3);
     dst_reg |= (msb_d << 3);
 
+    if (isVersionGreaterThanOrEqual(5))
+    {
+	if ((opcode == 3) && msb_d)
+	{
+	    opcode = 4;
+	}
+    }
+
     switch (opcode)
     {
 	// ADD Rd, Rs
@@ -857,6 +865,7 @@ void thumb_branch(uint16_t instr)
 void thumb_long_branch(uint16_t instr)
 {
     bool is_first_instr = (((instr >> 11) & 0x1F) == 0x1E);
+    bool is_blx_instr = (((instr >> 11) & 0x1F) == 0x1D);
 
     if (is_first_instr)
     {
@@ -879,5 +888,10 @@ void thumb_long_branch(uint16_t instr)
 	setReg(15, link_val);
 	setReg(14, ret_addr);
 	pipeline.is_reload = true;
+
+	if (is_blx_instr && isVersionGreaterThanOrEqual(5))
+	{
+	    setThumb(false);
+	}
     }
 }

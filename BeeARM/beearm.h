@@ -27,6 +27,33 @@ namespace beearm
 	Signed = (1 << 8), // Sign-extend
     };
 
+    class BeeARMUnknownInstruction : public exception
+    {
+	public:
+	    BeeARMUnknownInstruction(string id_str, uint32_t instr, int version = 0)
+	    {
+		stringstream ver_str;
+		ver_str << id_str;
+
+		if (version > 0)
+		{
+		    ver_str << " v" << dec << version;
+		}
+
+		stringstream ss;
+		ss << "Unrecognized " << ver_str.str() << " instruction of " << hex << int(instr);
+		message = ss.str();
+	    }
+
+	    virtual const char *what() const noexcept override
+	    {
+		return message.c_str();
+	    }
+
+	private:
+	    string message;
+    };
+
     class BeeARMInterface
     {
 	public:
@@ -222,7 +249,33 @@ namespace beearm
 	v4,
 	v4T,
 	v4xM,
-	v4TxM
+	v4TxM,
+	v5,
+	v5T,
+	v5xM,
+	v5TxM,
+	v5E,
+	v5TE,
+	v5TExP,
+	v5TEJ
+    };
+
+    class BeeARM7UnknownInstruction : public BeeARMUnknownInstruction
+    {
+	public:
+	    BeeARM7UnknownInstruction(int version, uint32_t instr) : BeeARMUnknownInstruction("ARM", instr, version)
+	    {
+
+	    }
+    };
+
+    class BeeARM7ThumbUnknownInstruction : public BeeARMUnknownInstruction
+    {
+	public:
+	    BeeARM7ThumbUnknownInstruction(int version, uint16_t instr) : BeeARMUnknownInstruction("THUMB", instr, version)
+	    {
+
+	    }
     };
 
     class BeeARM7UnsupportedFeature : public exception
@@ -235,7 +288,7 @@ namespace beearm
 		message = ss.str();
 	    }
 
-	    const char* what()
+	    virtual const char *what() const noexcept override
 	    {
 		return message.c_str();
 	    }
@@ -271,6 +324,44 @@ namespace beearm
 	    }
     };
 
+    class BeeARM7BLXUnsupported : public BeeARM7UnsupportedFeature
+    {
+	public:
+	    BeeARM7BLXUnsupported() : BeeARM7UnsupportedFeature("Branch, link and exchange")
+	    {
+
+	    }
+    };
+
+    class BeeARM7Coprocessor
+    {
+	public:
+	    BeeARM7Coprocessor()
+	    {
+
+	    }
+
+	    ~BeeARM7Coprocessor()
+	    {
+
+	    }
+
+	    virtual void reset()
+	    {
+		return;
+	    }
+
+	    virtual uint32_t readReg(uint32_t)
+	    {
+		return 0;
+	    }
+
+	    virtual void writeReg(uint32_t, uint32_t)
+	    {
+		return;
+	    }
+    };
+
     class BeeARM7
     {
 	public:
@@ -282,6 +373,9 @@ namespace beearm
 	    void initGBA();
 	    void shutdown();
 	    void setInterface(BeeARMInterface *cb);
+	    void setCoprocessor(int num, BeeARM7Coprocessor *cb);
+
+	    void setReg(BeeARM7Mode mode, int reg, uint32_t data);
 
 	    uint32_t getReg(int reg);
 	    void setReg(int reg, uint32_t data);
@@ -305,7 +399,21 @@ namespace beearm
 		return (is_thumb_enabled && testbit(arm_regs.cpsr, 5));
 	    }
 
-	    void fireInterrupt();
+	    void fireInterrupt(bool line = true);
+
+	    uint32_t getFetchedOpcode(int slot)
+	    {
+		slot &= 1;
+
+		if (slot == 0)
+		{
+		    return pipeline.decode.instr;
+		}
+		else
+		{
+		    return pipeline.fetch.instr;
+		}
+	    }
 
 	private:
 	    template<typename T>
@@ -339,6 +447,8 @@ namespace beearm
 		}
 	    }
 
+	    array<unique_ptr<BeeARM7Coprocessor>, 16> coprocs;
+
 	    unordered_map<string, BeeARM7Architecture> arch_strings = 
 	    {
 		{"armv3", v3G},
@@ -346,10 +456,23 @@ namespace beearm
 		{"armv4", v4},
 		{"armv4t", v4T},
 		{"armv4xm", v4xM},
-		{"armv4txm", v4TxM}
+		{"armv4txm", v4TxM},
+		{"armv5", v5},
+		{"armv5t", v5T},
+		{"armv5xm", v5xM},
+		{"armv5txm", v5TxM},
+		{"armv5e", v5E},
+		{"armv5te", v5TE},
+		{"armv5texp", v5TExP},
+		{"armv5tej", v5TEJ},
 	    };
 
 	    void throwException(BeeARM7Mode mode, uint32_t address);
+
+	    int getVersion()
+	    {
+		return version_num;
+	    }
 
 	    bool isVersion(int num)
 	    {
@@ -430,7 +553,7 @@ namespace beearm
 		    case 0xC: result = (!isZero() && (isSign() == isOverflow())); break; // GT
 		    case 0xD: result = (isZero() || (isSign() != isOverflow())); break; // LE
 		    case 0xE: result = true; break; // AL
-		    case 0xF: result = false; break; // NV
+		    case 0xF: result = true; break; // Reserved
 		}
 
 		return result;
@@ -518,12 +641,10 @@ namespace beearm
 		if (flags & Long)
 		{
 		    addr_bits = (addr & 3);
-		    addr &= ~3;
 		}
 		else if (flags & Word)
 		{
 		    addr_bits = (addr & 1);
-		    addr &= ~1;
 		}
 
 		uint32_t data = readMemory(flags, addr);
